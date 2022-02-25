@@ -39,6 +39,7 @@ namespace bkp
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
         public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
+        public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
             // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417

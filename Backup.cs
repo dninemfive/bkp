@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Documents;
 
 namespace bkp
 {
@@ -24,8 +26,12 @@ namespace bkp
                 return result;
             }
         }
-        public static long RunningTotal { get; private set; } = 0;
-        public static void DoBackup()
+        public static long RunningTotal { get; set; } = 0;
+        public static Task Start(Progress<(Run, long)> progress)
+        {
+            return Task.Run(() => DoBackup(progress));
+        }
+        public static void DoBackup(IProgress<(Run, long)> progress)
         {
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
@@ -35,10 +41,11 @@ namespace bkp
                 Directory.CreateDirectory(s2);
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
+                    // https://stackoverflow.com/questions/66968623/updating-ui-from-the-async-method
                     long size = new FileInfo(filePath).Length;
                     RunningTotal += size;
-                    MainWindow.Instance.UpdateProgress(size);
-                    Copy(filePath, filePath.Replace(backupTarget, s2));
+                    Run result = Copy(filePath, filePath.Replace(backupTarget, s2));
+                    progress?.Report((result, size));
                 }
             }            
         }
@@ -59,20 +66,20 @@ namespace bkp
             }
             return ret;
         }        
-        static void Copy(string oldFilePath, string newFilePath)
+        static Run Copy(string oldFilePath, string newFilePath)
         {
-            if (File.Exists(oldFilePath)) Utils.PrintLine(oldFilePath, LineType.Existence);
+            if (File.Exists(oldFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 // todo: await?
                 File.Copy(oldFilePath, newFilePath);
-                Utils.PrintLine($"{oldFilePath}\n\t↳{newFilePath}", LineType.Success);
+                return Utils.RunFor($"{oldFilePath}\n\t↳{newFilePath}", LineType.Success);
             }
             catch (Exception e)
             {
                 Utils.Log(e);
-                Utils.PrintLine(oldFilePath, LineType.Failure);
+                return Utils.RunFor(oldFilePath, LineType.Failure);
             }
         }
     }

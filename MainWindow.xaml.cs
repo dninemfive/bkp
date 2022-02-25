@@ -31,38 +31,27 @@ namespace bkp
             Instance = this;
             InitializeComponent();                     
             File.Delete(Utils.LOG_PATH);
-            CancellationTokenSource stopwatchToken = new();
-            _ = StartStopwatch(stopwatchToken.Token);
+            DoStuff();
+        }
+        public void DoStuff()
+        {
+            Progress<(Run run, long amount)> backupProgress = new(report => UpdateProgress(report));
             Progress.Maximum = Backup.Size;
-            /*
-            Backup.DoBackup();
-            */
-            stopwatchToken.Cancel();
+            Task backupTask = Backup.Start(backupProgress);
+            while (!backupTask.IsCompleted)
+            {
+                TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
+            }
+            Stopwatch.Stop();
         }
         public void Print(Run r) => Output.Inlines.Add(r);
-        public void UpdateProgress(long amount)
+        public void UpdateProgress((Run run, long amount) report)
         {
+            (Run run, long amount) = report;
             Progress.Value += amount;
+            Backup.RunningTotal += amount;
             ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal/Backup.Size):P1})";
-        }
-        public Task StartStopwatch(CancellationToken ct)
-        {
-            Stopwatch.Start();
-            return Task.Factory.StartNew(delegate() 
-                {
-                    while(true)
-                    {
-                        try
-                        {
-                            TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
-                        }
-                        catch(Exception e)
-                        {
-                            Stopwatch.Stop();
-                            Utils.Log($"Stopwatch ended at {Stopwatch.Elapsed:hh\\:mm\\:ss}: {e.Message}");
-                        }
-                    }                
-                }, ct);
-        }
+            Utils.PrintLine(run);
+        }        
     }
 }
