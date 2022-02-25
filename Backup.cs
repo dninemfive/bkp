@@ -8,11 +8,8 @@ namespace bkp
 {
     public static class Backup
     {
-        const string BACKUP_FILE_NAME = "backup.txt";
-        const string DATE_FORMAT = "yy.M.d";
-        const string LOG_PATH = "log.txt";
-        static string DateToday;
-        static void Main()
+        const string BACKUP_FILE_NAME = "backup.txt";        
+        static void Start()
         {
             Stopwatch stopwatch = new();
             stopwatch.Start();
@@ -58,31 +55,8 @@ namespace bkp
                 }
             }
             return ret;
-        }
-        static string BackupLocation(this string path) => path.Replace("C:/", $"D:/Automatic/{DateToday}/");
-        static bool Exists(this string path) => Directory.Exists(path);
-        static IEnumerable<string> AllFilesRecursive(this string path)
-        {
-            // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
-            using var enumerator = Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).GetEnumerator();
-            bool next = true;
-            while (next)
-            {
-                try
-                {
-                    next = enumerator.MoveNext();
-                }
-                catch (Exception e)
-                {
-                    Log(e);
-                }
-                if (next)
-                {
-                    foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
-                }
-            }
-        }
-        static void Log(Exception e) => File.AppendAllLines(LOG_PATH, new string[] { e.ToString() });
+        }        
+        
     }
 }
 }

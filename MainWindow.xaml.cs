@@ -20,9 +20,13 @@ namespace bkp
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow Instance { get; private set; } = null;
         public MainWindow()
         {
+            if (Instance is not null) return;
+            Instance = this;
             InitializeComponent();
         }
+        public void Print(string s) => Output.Text += s;
     }
 }
