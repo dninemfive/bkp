@@ -9,35 +9,19 @@ namespace bkp
     public static class Backup
     {
         const string BACKUP_FILE_NAME = "backup.txt";        
-        static void Start()
+        public static void DoBackup()
         {
-            Stopwatch stopwatch = new();
-            stopwatch.Start();
-            File.Delete(LOG_PATH);
-            DateToday = DateTime.Now.ToString(DATE_FORMAT);
             foreach (string s in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
                 Console.WriteLine(s);
                 // cache it in case running near midnight                
                 string s2 = s.BackupLocation();
                 Directory.CreateDirectory(s2);
-                Console.WriteLine($"{s} ({s.Exists()}) -> {s2} ({s2.Exists()})");
-                foreach (string f in s.AllFilesRecursive())
+                foreach (string filePath in s.AllFilesRecursive())
                 {
-                    string newPath = f.Replace(s, s2);
-                    Directory.CreateDirectory(Path.GetDirectoryName(newPath));
-                    Console.WriteLine($"\t{f} -> {newPath}");
-                    try
-                    {
-                        File.Copy(f, newPath);
-                    }
-                    catch (Exception e)
-                    {
-                        Log(e);
-                    }
+                    Copy(filePath, filePath.Replace(s, s2));
                 }
-            }
-            Console.WriteLine($"Time elapsed: {stopwatch.Elapsed}");
+            }            
         }
         static List<string> Parse(this IEnumerable<string> input)
         {
@@ -56,7 +40,21 @@ namespace bkp
             }
             return ret;
         }        
-        
+        static void Copy(string oldFilePath, string newFilePath)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+            Utils.PrintLine(oldFilePath);
+            try
+            {
+                // todo: await?
+                File.Copy(oldFilePath, newFilePath);
+                Utils.PrintLine($"\t↳{newFilePath}");
+            }
+            catch (Exception e)
+            {
+                Utils.Log(e);
+            }
+        }
     }
 }
 }
