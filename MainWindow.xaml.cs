@@ -38,5 +38,10 @@ namespace bkp
             Utils.PrintLine($"Time elapsed: {stopwatch.Elapsed}");
         }
         public void Print(Run r) => Output.Text += r;
+        public void UpdateProgress(long amount)
+        {
+            Progress.Value += amount;
+            ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal/Backup.Size):P1})";
+        }
     }
 }

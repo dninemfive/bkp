@@ -8,8 +8,9 @@
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
         <ProgressBar Name ="Progress" DockPanel.Dock="Top" Height="10"/>
+        <TextBlock Name="ProgressText" DockPanel.Dock="Top" Background="#444444" Foreground="LightGray" HorizontalAlignment="Stretch" Padding="6 0">0/10 (0%)</TextBlock>
         <ScrollViewer Name="Scroll">
-            <TextBlock Name="Output" Background="Black" Foreground="#00FF00"></TextBlock>
+            <TextBlock Name="Output" Background="Black" Foreground="White"></TextBlock>
         </ScrollViewer>
     </DockPanel>
 </Window>

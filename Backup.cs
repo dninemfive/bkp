@@ -8,19 +8,23 @@ namespace bkp
 {
     public static class Backup
     {
-        const string BACKUP_FILE_NAME = "backup.txt";        
+        const string BACKUP_FILE_NAME = "backup.txt";
+        private static long? _size = null;
         public static long Size
         {
             get
             {
+                if (_size is not null) return _size.Value;
                 long result = 0;
                 foreach(string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
                 {
                     foreach (string filePath in backupTarget.AllFilesRecursive()) result += new FileInfo(filePath).Length;
                 }
+                _size = result;
                 return result;
             }
         }
+        public static long RunningTotal { get; private set; } = 0;
         public static void DoBackup()
         {
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
@@ -31,7 +35,9 @@ namespace bkp
                 Directory.CreateDirectory(s2);
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
-                    MainWindow.Instance.Progress.Value += new FileInfo(filePath).Length;
+                    long size = new FileInfo(filePath).Length;
+                    RunningTotal += size;
+                    MainWindow.Instance.UpdateProgress(size);
                     Copy(filePath, filePath.Replace(backupTarget, s2));
                 }
             }            
