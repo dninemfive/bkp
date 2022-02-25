@@ -9,17 +9,30 @@ namespace bkp
     public static class Backup
     {
         const string BACKUP_FILE_NAME = "backup.txt";        
+        public static long Size
+        {
+            get
+            {
+                long result = 0;
+                foreach(string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
+                {
+                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += new FileInfo(filePath).Length;
+                }
+                return result;
+            }
+        }
         public static void DoBackup()
         {
-            foreach (string s in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
+            foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
-                Console.WriteLine(s);
+                Console.WriteLine(backupTarget);
                 // cache it in case running near midnight                
-                string s2 = s.BackupLocation();
+                string s2 = backupTarget.BackupLocation();
                 Directory.CreateDirectory(s2);
-                foreach (string filePath in s.AllFilesRecursive())
+                foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
-                    Copy(filePath, filePath.Replace(s, s2));
+                    MainWindow.Instance.Progress.Value += new FileInfo(filePath).Length;
+                    Copy(filePath, filePath.Replace(backupTarget, s2));
                 }
             }            
         }
@@ -53,6 +66,7 @@ namespace bkp
             catch (Exception e)
             {
                 Utils.Log(e);
+                Utils.PrintLine("\tFAILED");
             }
         }
     }

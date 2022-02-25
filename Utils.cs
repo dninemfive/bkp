@@ -9,7 +9,9 @@ namespace bkp
 {
     public static class Utils
     {
+        public const string LOG_PATH = "log.txt";
         const string DATE_FORMAT = "yy.M.d";
+        // cached to avoid issues when running near midnight
         private static DateTime? _today = null;
         public static string DateToday
         {

@@ -21,8 +21,7 @@ namespace bkp
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {
-        const string LOG_PATH = "log.txt";
+    {        
         public static MainWindow Instance { get; private set; } = null;
         public MainWindow()
         {
@@ -31,8 +30,11 @@ namespace bkp
             InitializeComponent();
             Stopwatch stopwatch = new();
             stopwatch.Start();
-            File.Delete(LOG_PATH);
+            File.Delete(Utils.LOG_PATH);
+            Progress.Maximum = Backup.Size;
+
             Backup.DoBackup();
+
             Utils.PrintLine($"Time elapsed: {stopwatch.Elapsed}");
         }
         public void Print(string s) => Output.Text += s;
