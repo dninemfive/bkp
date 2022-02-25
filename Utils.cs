@@ -33,7 +33,7 @@ namespace bkp
         };
         public static string BackupLocation(this string path) => path.Replace("C:/", $"D:/Automatic/{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
-        public static void Log(Exception e) => File.AppendAllText(LOG_PATH, e.ToString());
+        public static void Log(Exception e) => File.AppendAllText(LOG_PATH, $"{e}\n");
         public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");

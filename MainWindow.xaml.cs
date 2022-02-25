@@ -35,7 +35,7 @@ namespace bkp
 
             Backup.DoBackup();
 
-            Utils.PrintLine($"Time elapsed: {stopwatch.Elapsed}");
+            Utils.PrintLine($"\nTime elapsed: {stopwatch.Elapsed}");
         }
         public void Print(Run r) => Output.Text += r;
         public void UpdateProgress(long amount)
