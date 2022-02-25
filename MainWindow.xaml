@@ -8,7 +8,14 @@
         Title="MainWindow" Height="450" Width="800">
     <DockPanel>
         <ProgressBar Name ="Progress" DockPanel.Dock="Top" Height="10"/>
-        <TextBlock Name="ProgressText" DockPanel.Dock="Top" Background="#444444" Foreground="LightGray" HorizontalAlignment="Stretch" Padding="6 0">0/10 (0%)</TextBlock>
+        <Grid Background="#444444" DockPanel.Dock="Top">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Name="ProgressText" Grid.Column="0" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Left">0/10 (0%)</TextBlock>
+            <TextBlock Name="TimeElapsed"  Grid.Column="1" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Right">00:00:00</TextBlock>
+        </Grid>        
         <ScrollViewer Name="Scroll">
             <TextBlock Name="Output" Background="Black" Foreground="White"></TextBlock>
         </ScrollViewer>
