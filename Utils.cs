@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Windows.Media;
 
 namespace bkp
 {
@@ -21,11 +23,21 @@ namespace bkp
                 return _today.Value.ToString(DATE_FORMAT);
             }
         }
+        public static SolidColorBrush Color(this LineType lt) => lt switch
+        {
+            // colors tested with https://www.color-blindness.com/coblis-color-blindness-simulator/ and seem fine for all except maybe protanopia
+            LineType.Success   => new(Colors.Green),
+            LineType.Failure   => new(Colors.Red),
+            LineType.Existence => new(Colors.Blue),
+            _                  => new(Colors.White)
+        };
         public static string BackupLocation(this string path) => path.Replace("C:/", $"D:/Automatic/{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
         public static void Log(Exception e) => File.AppendAllText(LOG_PATH, e.ToString());
-        public static void Print(object obj) => MainWindow.Instance.Print(obj.ToString());
+        public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
+        public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
+        public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
             // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
@@ -49,4 +61,5 @@ namespace bkp
         }
         
     }
+    public enum LineType { Success, Failure, Existence, Other }
 }

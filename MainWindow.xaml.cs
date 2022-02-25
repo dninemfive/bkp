@@ -37,6 +37,6 @@ namespace bkp
 
             Utils.PrintLine($"Time elapsed: {stopwatch.Elapsed}");
         }
-        public void Print(string s) => Output.Text += s;
+        public void Print(Run r) => Output.Text += r;
     }
 }

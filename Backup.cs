@@ -55,20 +55,19 @@ namespace bkp
         }        
         static void Copy(string oldFilePath, string newFilePath)
         {
+            if (File.Exists(oldFilePath)) Utils.PrintLine(oldFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
-            Utils.PrintLine(oldFilePath);
             try
             {
                 // todo: await?
                 File.Copy(oldFilePath, newFilePath);
-                Utils.PrintLine($"\t↳{newFilePath}");
+                Utils.PrintLine($"{oldFilePath}\n\t↳{newFilePath}", LineType.Success);
             }
             catch (Exception e)
             {
                 Utils.Log(e);
-                Utils.PrintLine("\tFAILED");
+                Utils.PrintLine(oldFilePath, LineType.Failure);
             }
         }
     }
-}
 }
