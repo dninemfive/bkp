@@ -6,7 +6,10 @@
         xmlns:local="clr-namespace:bkp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+    <DockPanel>
+        <ProgressBar Name ="Progress" DockPanel.Dock="Top" Height="10"/>
+        <ScrollViewer Name="Scroll">
+            <TextBlock Name="Output" Background="Black" Foreground="#00FF00"></TextBlock>
+        </ScrollViewer>
+    </DockPanel>
 </Window>
