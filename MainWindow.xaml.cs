@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -31,38 +32,39 @@ namespace bkp
             Instance = this;
             InitializeComponent();                     
             File.Delete(Utils.LOG_PATH);
-            CancellationTokenSource stopwatchToken = new();
-            _ = StartStopwatch(stopwatchToken.Token);
+            BackgroundWorker stopwatchWorker = StartStopwatch();
+            stopwatchWorker.RunWorkerAsync();
             Progress.Maximum = Backup.Size;
-            /*
             Backup.DoBackup();
-            */
-            stopwatchToken.Cancel();
+            stopwatchWorker.CancelAsync();
         }
         public void Print(Run r) => Output.Inlines.Add(r);
         public void UpdateProgress(long amount)
         {
             Progress.Value += amount;
             ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal/Backup.Size):P1})";
-        }
-        public Task StartStopwatch(CancellationToken ct)
-        {
+        }        
+        private BackgroundWorker StartStopwatch()
+        {            
             Stopwatch.Start();
-            return Task.Factory.StartNew(delegate() 
-                {
-                    while(true)
-                    {
-                        try
-                        {
-                            TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
-                        }
-                        catch(Exception e)
-                        {
-                            Stopwatch.Stop();
-                            Utils.Log($"Stopwatch ended at {Stopwatch.Elapsed:hh\\:mm\\:ss}: {e.Message}");
-                        }
-                    }                
-                }, ct);
+            // https://stackoverflow.com/questions/5483565/how-to-use-wpf-background-worker
+            BackgroundWorker worker = new();
+            worker.DoWork += RunStopwatch;
+            worker.RunWorkerCompleted += StopStopwatch;
+            return worker;
+        }
+        // https://stackoverflow.com/questions/46765692/c-sharp-wpf-async-thread-with-interface-to-gui
+        private void RunStopwatch(object sender, DoWorkEventArgs e)
+        {
+            while (true)
+            {
+                TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
+            }
+        }
+        private void StopStopwatch(object sender, RunWorkerCompletedEventArgs rca)
+        {
+            Stopwatch.Stop();
+            Utils.Log($"Stopwatch ended at {Stopwatch.Elapsed:hh\\:mm\\:ss}: {rca}");
         }
     }
 }
