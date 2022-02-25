@@ -30,14 +30,15 @@ namespace bkp
             InitializeComponent();
             Stopwatch stopwatch = new();
             stopwatch.Start();
+            /*
             File.Delete(Utils.LOG_PATH);
             Progress.Maximum = Backup.Size;
 
             Backup.DoBackup();
-
+            */
             Utils.PrintLine($"\nTime elapsed: {stopwatch.Elapsed}");
         }
-        public void Print(Run r) => Output.Text += r;
+        public void Print(Run r) => Output.Inlines.Add(r);
         public void UpdateProgress(long amount)
         {
             Progress.Value += amount;
