@@ -16,13 +16,14 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace bkp
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
         public static MainWindow Instance { get; private set; } = null;
         public Stopwatch Stopwatch { get; private set; } = new();
@@ -33,21 +34,33 @@ namespace bkp
         {
             if (Instance is not null) return;
             Instance = this;
+            Stopwatch.Start();
+            //PropertyChanged = new(TimerPropertyChanged);
+            _timer = new Timer(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            //PropertyChanged += UpdateTimer;
             InitializeComponent();                     
             // File.Delete(Utils.LOG_PATH);
             // Progress.Maximum = Backup.Size;
             StartButton.Visibility = Visibility.Visible;
-            TimeElapsed.DataContext = Stopwatch;
-            _timer = new Timer(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            PropertyChanged = new(UpdateTimer);
-            Stopwatch.Start();
         }
         // https://stackoverflow.com/questions/8302590/running-stopwatch-in-textblock/8302652#8302652
-        private void UpdateTimer(object sender, PropertyChangedEventArgs e)
+        private void TimerPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             PropertyChanged(sender, e);
         }
-        public void DoStuff()
+        private void UpdateTimer(object sender, PropertyChangedEventArgs e)
+        {
+            // https://stackoverflow.com/a/9732853
+            Application.Current.Dispatcher.Invoke(delegate()
+            {
+                TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
+            }, DispatcherPriority.ContextIdle);
+            //Dispatcher.Invoke(() =>{
+                
+            //});
+            
+        }
+        public void DoStuff(object sender, PropertyChangedEventArgs e)
         {            
             while (true)
             {
