@@ -4,6 +4,9 @@
              xmlns:local="clr-namespace:bkp"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <SolidColorBrush x:Key="BackgroundColor" Color="Black"/>
+        <SolidColorBrush x:Key="BackgroundTextColor" Color="White"/>
+        <SolidColorBrush x:Key="ForegroundColor" Color="#444444"/>
+        <SolidColorBrush x:Key="ForegroundTextColor" Color="LightGray"/>
     </Application.Resources>
 </Application>

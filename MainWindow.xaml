@@ -9,16 +9,16 @@
     <Grid>
         <DockPanel Panel.ZIndex="0">
             <ProgressBar Name ="Progress" DockPanel.Dock="Top" Height="10"/>
-            <Grid Background="#444444" DockPanel.Dock="Top">
+            <Grid Background="{StaticResource ForegroundColor}" DockPanel.Dock="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Name="ProgressText" Grid.Column="0" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Left">0/10 (0%)</TextBlock>
-                <TextBlock Name="TimeElapsed"  Grid.Column="1" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Right">00:00:00</TextBlock>
+                <TextBlock Name="ProgressText" Grid.Column="0" Foreground="{StaticResource ForegroundTextColor}" Padding="6 0" HorizontalAlignment="Left">0/10 (0%)</TextBlock>
+                <TextBlock Name="TimeElapsed"  Grid.Column="1" Foreground="{StaticResource ForegroundTextColor}" Padding="6 0" HorizontalAlignment="Right">00:00:00</TextBlock>
             </Grid>
             <ScrollViewer Name="Scroll">
-                <TextBlock Name="Output" Background="Black" Foreground="White"></TextBlock>
+                <TextBlock Name="Output" Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}"></TextBlock>
             </ScrollViewer>
         </DockPanel>
         <Grid Name="ButtonHolder" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">
