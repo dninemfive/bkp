@@ -31,27 +31,37 @@ namespace bkp
             Instance = this;
             InitializeComponent();                     
             File.Delete(Utils.LOG_PATH);
-            DoStuff();
         }
-        public void DoStuff()
+        public Task DoStuff()
         {
-            Progress<(Run run, long amount)> backupProgress = new(report => UpdateProgress(report));
+            Progress<(Run run, long amount)> backupProgress = new(report => UpdateProgress(null, report));
             Progress.Maximum = Backup.Size;
+            backupProgress.ProgressChanged += UpdateProgress;
+            Utils.Log("\tjust got size");
             Task backupTask = Backup.Start(backupProgress);
+            Utils.Log("\tstarted backup");
             while (!backupTask.IsCompleted)
             {
                 TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
             }
             Stopwatch.Stop();
+            return Task.CompletedTask;
         }
         public void Print(Run r) => Output.Inlines.Add(r);
-        public void UpdateProgress((Run run, long amount) report)
+        public void UpdateProgress(object sender, (Run run, long amount) e)
         {
-            (Run run, long amount) = report;
+            Utils.Log($"{e.run.Text} {e.amount}");
+            (Run run, long amount) = e;
             Progress.Value += amount;
             Backup.RunningTotal += amount;
             ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal/Backup.Size):P1})";
             Utils.PrintLine(run);
-        }        
+        }
+
+        private async void Button_Click(object sender, RoutedEventArgs e)
+        {
+            StartButton.Visibility = Visibility.Hidden;
+            await DoStuff();
+        }
     }
 }

@@ -20,7 +20,7 @@ namespace bkp
                 long result = 0;
                 foreach(string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
                 {
-                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += new FileInfo(filePath).Length;
+                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += 1; // new FileInfo(filePath).Length;
                 }
                 _size = result;
                 return result;
@@ -29,6 +29,7 @@ namespace bkp
         public static long RunningTotal { get; set; } = 0;
         public static Task Start(Progress<(Run, long)> progress)
         {
+            Utils.Log("\t\ti'm stuff");
             return Task.Run(() => DoBackup(progress));
         }
         public static void DoBackup(IProgress<(Run, long)> progress)
