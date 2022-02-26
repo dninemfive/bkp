@@ -31,7 +31,7 @@ namespace bkp
             LineType.Existence => new(Colors.Blue),
             _                  => new(Colors.White)
         };
-        public static string BackupLocation(this string path) => path.Replace("C:/", $"D:/Automatic/{DateToday}/");
+        public static string BackupLocation(this string path) => path.Replace("C:/", $"{Backup.TargetFolder}{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
         public static void Log(string s) => File.AppendAllText(LOG_PATH, $"{s}\n");
         public static void Log(Exception e) => File.AppendAllText(LOG_PATH, $"{e}\n");

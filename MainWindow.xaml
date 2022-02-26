@@ -21,6 +21,15 @@
                 <TextBlock Name="Output" Background="Black" Foreground="White"></TextBlock>
             </ScrollViewer>
         </DockPanel>
-        <Button Name="StartButton" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8" Click="Button_Click" Visibility="Hidden">Start Backup</Button>
+        <Grid Name="ButtonHolder" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button Name="SetTargetFolderButton" Padding="8" Click="Button_SelectTargetFolder" Grid.Row="0">Set target folder...</Button>
+            <Button Name="SetBackupFoldersButton" Padding="8" Click="Button_SelectBackupFolders" Grid.Row="1">Set backup folders...</Button>
+            <Button Name="StartButton" Padding="8" Click="Button_StartBackup" Grid.Row="2">Start backup</Button>
+        </Grid>        
     </Grid>
 </Window>

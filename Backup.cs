@@ -11,6 +11,7 @@ namespace bkp
     public static class Backup
     {
         const string BACKUP_FILE_NAME = "backup.txt";
+        public static string TargetFolder { get; set; } = "D:/Automatic/";
         private static long? _size = null;
         public static long Size
         {

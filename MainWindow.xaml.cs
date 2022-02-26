@@ -35,8 +35,7 @@ namespace bkp
             Instance = this;
             _timer = new Timer(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             InitializeComponent();                     
-            File.Delete(Utils.LOG_PATH);            
-            StartButton.Visibility = Visibility.Visible;
+            File.Delete(Utils.LOG_PATH);
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
@@ -56,8 +55,17 @@ namespace bkp
             ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal/Backup.Size):P1})";
             Utils.PrintLine(run);
         }
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
         {
+
+        }
+        private void Button_SelectBackupFolders(object sender, RoutedEventArgs e)
+        {
+
+        }
+        private void Button_StartBackup(object sender, RoutedEventArgs e)
+        {
+            StartButton.Visibility = Visibility.Collapsed;
             Stopwatch.Start();
             Progress.IsIndeterminate = true;
             Progress.Maximum = Backup.Size;
