@@ -15,12 +15,13 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Name="ProgressText" Grid.Column="0" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Left">0/10 (0%)</TextBlock>
-                <TextBlock Name="TimeElapsed"  Grid.Column="1" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Right">00:00:00</TextBlock>
+                <TextBlock Name="TimeElapsed"  Grid.Column="1" Foreground="LightGray" Padding="6 0" HorizontalAlignment="Right"
+                           Text="{Binding Path=Elapsed, Mode=OneWay}">00:00:00</TextBlock>
             </Grid>
             <ScrollViewer Name="Scroll">
                 <TextBlock Name="Output" Background="Black" Foreground="White"></TextBlock>
             </ScrollViewer>
         </DockPanel>
-        <Button Name="StartButton" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8" Click="Button_Click">Start Backup</Button>
+        <Button Name="StartButton" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="8" Click="Button_Click" Visibility="Hidden">Start Backup</Button>
     </Grid>
 </Window>

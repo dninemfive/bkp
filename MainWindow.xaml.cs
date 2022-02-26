@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -22,33 +23,39 @@ namespace bkp
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
-    {        
+    {
         public static MainWindow Instance { get; private set; } = null;
-        public static Stopwatch Stopwatch { get; private set; } = new();
+        public Stopwatch Stopwatch { get; private set; } = new();
+        public event PropertyChangedEventHandler PropertyChanged;
+        // to avoid garbage collection per https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer
+        private Timer _timer;
         public MainWindow()
         {
             if (Instance is not null) return;
             Instance = this;
             InitializeComponent();                     
-            File.Delete(Utils.LOG_PATH);
+            // File.Delete(Utils.LOG_PATH);
+            // Progress.Maximum = Backup.Size;
+            StartButton.Visibility = Visibility.Visible;
+            TimeElapsed.DataContext = Stopwatch;
+            _timer = new Timer(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            PropertyChanged = new(UpdateTimer);
+            Stopwatch.Start();
         }
-        public Task DoStuff()
+        // https://stackoverflow.com/questions/8302590/running-stopwatch-in-textblock/8302652#8302652
+        private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
-            Progress<(Run run, long amount)> backupProgress = new(report => UpdateProgress(null, report));
-            Progress.Maximum = Backup.Size;
-            backupProgress.ProgressChanged += UpdateProgress;
-            Utils.Log("\tjust got size");
-            Task backupTask = Backup.Start(backupProgress);
-            Utils.Log("\tstarted backup");
-            while (!backupTask.IsCompleted)
+            PropertyChanged(sender, e);
+        }
+        public void DoStuff()
+        {            
+            while (true)
             {
-                TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
+                ProgressText.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
             }
-            Stopwatch.Stop();
-            return Task.CompletedTask;
         }
         public void Print(Run r) => Output.Inlines.Add(r);
-        public void UpdateProgress(object sender, (Run run, long amount) e)
+        public void UpdateProgress((Run run, long amount) e)
         {
             Utils.Log($"{e.run.Text} {e.amount}");
             (Run run, long amount) = e;
@@ -58,10 +65,17 @@ namespace bkp
             Utils.PrintLine(run);
         }
 
-        private async void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            StartButton.Visibility = Visibility.Hidden;
-            await DoStuff();
+            ProgressText.Text = Stopwatch.Elapsed.ToString();
+            //StartButton.Visibility = Visibility.Hidden;
+            //await Task.Run(() => DoOtherStuff());
+        }
+        public void DoOtherStuff()
+        {
+            Stopwatch.Start();
+            Backup.DoBackup();
+            Stopwatch.Stop();
         }
     }
 }

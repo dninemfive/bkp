@@ -27,26 +27,20 @@ namespace bkp
             }
         }
         public static long RunningTotal { get; set; } = 0;
-        public static Task Start(Progress<(Run, long)> progress)
-        {
-            Utils.Log("\t\ti'm stuff");
-            return Task.Run(() => DoBackup(progress));
-        }
-        public static void DoBackup(IProgress<(Run, long)> progress)
+        public static void DoBackup()
         {
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
-                Console.WriteLine(backupTarget);
+                Utils.Log(backupTarget);
                 // cache it in case running near midnight                
                 string s2 = backupTarget.BackupLocation();
                 Directory.CreateDirectory(s2);
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
-                    // https://stackoverflow.com/questions/66968623/updating-ui-from-the-async-method
                     long size = new FileInfo(filePath).Length;
                     RunningTotal += size;
                     Run result = Copy(filePath, filePath.Replace(backupTarget, s2));
-                    progress?.Report((result, size));
+                    //MainWindow.Instance.UpdateProgress((result, size));
                 }
             }            
         }
@@ -69,6 +63,7 @@ namespace bkp
         }        
         static Run Copy(string oldFilePath, string newFilePath)
         {
+            //Utils.PrintLine("aaaaaaaa");
             if (File.Exists(oldFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
