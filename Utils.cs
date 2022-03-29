@@ -26,10 +26,11 @@ namespace bkp
         public static SolidColorBrush Color(this LineType lt) => lt switch
         {
             // colors tested with https://www.color-blindness.com/coblis-color-blindness-simulator/ and seem fine for all except maybe protanopia
-            LineType.Success   => new(Colors.Green),
-            LineType.Failure   => new(Colors.Red),
-            LineType.Existence => new(Colors.Blue),
-            _                  => new(Colors.White)
+            LineType.Success    => new(Colors.LimeGreen),
+            LineType.Failure    => new(Colors.Red),
+            LineType.Existence  => new(Colors.Cyan),
+            LineType.InProgress => new(Colors.Yellow),
+            _                   => new(Colors.White)
         };
         public static string BackupLocation(this string path) => path.Replace("C:/", $"{Backup.TargetFolder}{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
@@ -38,6 +39,15 @@ namespace bkp
         public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
+        public static void PrintLine(Run r, bool replaceLast = false)
+        {
+            r.Text += "\n";
+            if(replaceLast)
+            {
+                MainWindow.Instance.Output.Inlines.Remove(MainWindow.Instance.Output.Inlines.LastInline);
+            } 
+            MainWindow.Instance.Print(r);  
+        }
         public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
@@ -60,8 +70,9 @@ namespace bkp
                     foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
                 }
             }
+            foreach (string file in Directory.EnumerateFiles(path)) yield return file;
         }
         
     }
-    public enum LineType { Success, Failure, Existence, Other }
+    public enum LineType { Success, Failure, Existence, InProgress, Other }
 }

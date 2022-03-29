@@ -14,8 +14,9 @@
         </Grid.ColumnDefinitions>
         <DockPanel Grid.Column="1">
             <DockPanel DockPanel.Dock="Top">
-                <TextBlock Foreground="{StaticResource ForegroundTextColor}" Padding="8">Target Folder:</TextBlock>
-                <TextBox Background="{StaticResource BackgroundColor}" Foreground="{StaticResource ForegroundColor}" Margin="8"/>
+                <TextBlock DockPanel.Dock="Left" Foreground="{StaticResource ForegroundTextColor}" Padding="8">Target Folder:</TextBlock>
+                <TextBlock DockPanel.Dock="Left" Foreground="#00FF00" Width="8" Margin="0 8">✓</TextBlock>
+                <TextBox Background="{StaticResource BackgroundColor}" Foreground="{StaticResource ForegroundColor}" Margin="2 8 8 8"/>
             </DockPanel>
             <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" Foreground="{StaticResource ForegroundTextColor}">Source Folders</TextBlock>
             <TextBox Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}" Margin="8"></TextBox>

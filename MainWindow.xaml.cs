@@ -28,14 +28,12 @@ namespace bkp
         public static MainWindow Instance { get; private set; } = null;
         public Stopwatch Stopwatch { get; private set; } = new();
         // to avoid garbage collection per https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer
-        private Timer _timer;
         public MainWindow()
         {
             if (Instance is not null) return;
-            Instance = this;
-            _timer = new Timer(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            InitializeComponent();                     
-            File.Delete(Utils.LOG_PATH);
+            Instance = this;            
+            InitializeComponent();
+            File.Delete(Utils.LOG_PATH);            
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
@@ -43,17 +41,21 @@ namespace bkp
             Application.Current.Dispatcher.Invoke(delegate()
             {
                 TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
+                ForceUpdate();
             }, DispatcherPriority.ContextIdle);
         }
         public void Print(Run r) => Output.Inlines.Add(r);
-        public void UpdateProgress((Run run, long amount) e)
+        public void UpdateProgress(Run run, long amount)
         {
-            Utils.Log($"{e.run.Text} {e.amount}");
-            (Run run, long amount) = e;
+            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount));
+            ForceUpdate();
+        }
+        private void UpdateProgressInternal(Run run, long amount)
+        {
             Progress.Value += amount;
-            Backup.RunningTotal += amount;
-            ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal/Backup.Size):P1})";
-            Utils.PrintLine(run);
+            ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal / Backup.Size):P1})";
+            Utils.PrintLine(run, amount > 0);
+            Scroll.ScrollToBottom();
         }
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
         {
@@ -63,15 +65,33 @@ namespace bkp
         {
 
         }
-        private void Button_StartBackup(object sender, RoutedEventArgs e)
+        private async void Button_StartBackup(object sender, RoutedEventArgs e)
         {
-            StartButton.Visibility = Visibility.Collapsed;
+            using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            ButtonHolder.Visibility = Visibility.Collapsed;
+            Utils.PrintLine("Started backup...");
             Stopwatch.Start();
             Progress.IsIndeterminate = true;
+            await Task.Run(() => _ = Backup.Size); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = Backup.Size;
             Progress.IsIndeterminate = false;
-            Backup.DoBackup();
+            await Backup.DoBackup();
+            Progress.Foreground = new SolidColorBrush(Colors.Red);
             Stopwatch.Stop();
+            timer.Dispose();
+            Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+            return;
+        }
+        // https://stackoverflow.com/a/616676
+        public static void ForceUpdate()
+        {
+            DispatcherFrame frame = new();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Render, new DispatcherOperationCallback(delegate (object parameter)
+            {
+                frame.Continue = false;
+                return null;
+            }), null);
+            Dispatcher.PushFrame(frame);
         }
     }
 }

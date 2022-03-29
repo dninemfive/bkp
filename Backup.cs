@@ -11,7 +11,7 @@ namespace bkp
     public static class Backup
     {
         const string BACKUP_FILE_NAME = "backup.txt";
-        public static string TargetFolder { get; set; } = "D:/Automatic/";
+        public static string TargetFolder { get; set; } = @"D:/Automatic/";
         private static long? _size = null;
         public static long Size
         {
@@ -21,29 +21,31 @@ namespace bkp
                 long result = 0;
                 foreach(string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
                 {
-                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += 1; // new FileInfo(filePath).Length;
+                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += new FileInfo(filePath).Length;
                 }
                 _size = result;
                 return result;
             }
         }
         public static long RunningTotal { get; set; } = 0;
-        public static void DoBackup()
+        public static Task DoBackup()
         {
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
-                Utils.Log(backupTarget);
+                //Utils.Log(backupTarget);
                 // cache it in case running near midnight                
                 string s2 = backupTarget.BackupLocation();
                 Directory.CreateDirectory(s2);
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
+                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1);
                     long size = new FileInfo(filePath).Length;
                     RunningTotal += size;
                     Run result = Copy(filePath, filePath.Replace(backupTarget, s2));
-                    //MainWindow.Instance.UpdateProgress((result, size));
+                    MainWindow.Instance.UpdateProgress(result, size);
                 }
-            }            
+            }
+            return Task.CompletedTask;
         }
         static List<string> Parse(this IEnumerable<string> input)
         {
@@ -65,13 +67,14 @@ namespace bkp
         static Run Copy(string oldFilePath, string newFilePath)
         {
             //Utils.PrintLine("aaaaaaaa");
-            if (File.Exists(oldFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
+            Utils.Log($"Copying {oldFilePath} to {newFilePath}.");
+            if (File.Exists(newFilePath)) return Utils.RunFor(newFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 // todo: await?
                 File.Copy(oldFilePath, newFilePath);
-                return Utils.RunFor($"{oldFilePath}\n\t↳{newFilePath}", LineType.Success);
+                return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
             }
             catch (Exception e)
             {
