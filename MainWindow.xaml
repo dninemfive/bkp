@@ -21,6 +21,8 @@
                 <TextBlock Name="Output" Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}" FontFamily="Courier New"></TextBlock>
             </ScrollViewer>
         </DockPanel>
+        <Button Panel.ZIndex="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="4" Name="ToggleScroll" 
+                Margin="0 0 17 0" Click="Button_ToggleScroll" Visibility="Collapsed">AUTO Scrolling</Button>
         <Grid Name="ButtonHolder" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -30,6 +32,6 @@
             <Button Name="SetTargetFolderButton" Padding="8" Click="Button_SelectTargetFolder" Grid.Row="0">Set target folder...</Button>
             <Button Name="SetBackupFoldersButton" Padding="8" Click="Button_SelectBackupFolders" Grid.Row="1">Set backup folders...</Button>
             <Button Name="StartButton" Padding="8" Click="Button_StartBackup" Grid.Row="2">Start backup</Button>
-        </Grid>        
+        </Grid>                
     </Grid>
 </Window>

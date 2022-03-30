@@ -32,7 +32,6 @@ namespace bkp
         {
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
-                //Utils.Log(backupTarget);
                 // cache it in case running near midnight                
                 string s2 = backupTarget.BackupLocation();
                 Directory.CreateDirectory(s2);
@@ -66,13 +65,11 @@ namespace bkp
         }        
         static Run Copy(string oldFilePath, string newFilePath)
         {
-            //Utils.PrintLine("aaaaaaaa");
             Utils.Log($"Copying {oldFilePath} to {newFilePath}.");
             if (File.Exists(newFilePath)) return Utils.RunFor(newFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
-                // todo: await?
                 File.Copy(oldFilePath, newFilePath);
                 return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
             }

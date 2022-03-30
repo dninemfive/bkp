@@ -27,6 +27,7 @@ namespace bkp
     {
         public static MainWindow Instance { get; private set; } = null;
         public Stopwatch Stopwatch { get; private set; } = new();
+        public bool AutoScroll = true;
         // to avoid garbage collection per https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer
         public MainWindow()
         {
@@ -42,7 +43,7 @@ namespace bkp
             {
                 TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
                 ForceUpdate();
-            }, DispatcherPriority.ContextIdle);
+            }, DispatcherPriority.Render);
         }
         public void Print(Run r) => Output.Inlines.Add(r);
         public void UpdateProgress(Run run, long amount)
@@ -53,9 +54,9 @@ namespace bkp
         private void UpdateProgressInternal(Run run, long amount)
         {
             Progress.Value += amount;
-            ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(double)(Backup.RunningTotal / Backup.Size):P1})";
+            ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
             Utils.PrintLine(run, amount > 0);
-            Scroll.ScrollToBottom();
+            if(AutoScroll) Scroll.ScrollToBottom();
         }
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
         {
@@ -68,6 +69,7 @@ namespace bkp
         private async void Button_StartBackup(object sender, RoutedEventArgs e)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            ToggleScroll.Visibility = Visibility.Visible;
             ButtonHolder.Visibility = Visibility.Collapsed;
             Utils.PrintLine("Started backup...");
             Stopwatch.Start();
@@ -75,11 +77,12 @@ namespace bkp
             await Task.Run(() => _ = Backup.Size); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = Backup.Size;
             Progress.IsIndeterminate = false;
-            await Backup.DoBackup();
+            Task backup = Backup.DoBackup();
             Progress.Foreground = new SolidColorBrush(Colors.Red);
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+            ToggleScroll.Visibility = Visibility.Collapsed;
             return;
         }
         // https://stackoverflow.com/a/616676
@@ -92,6 +95,12 @@ namespace bkp
                 return null;
             }), null);
             Dispatcher.PushFrame(frame);
+        }
+
+        private void Button_ToggleScroll(object sender, RoutedEventArgs e)
+        {
+            AutoScroll = !AutoScroll;
+            ToggleScroll.Content = (AutoScroll ? "AUTO" : "MANUAL") + " Scrolling";
         }
     }
 }

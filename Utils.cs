@@ -39,10 +39,10 @@ namespace bkp
         public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
-        public static void PrintLine(Run r, bool replaceLast = false)
+        public static void PrintLine(Run r, bool replaceLast = true)
         {
             r.Text += "\n";
-            if(replaceLast)
+            if(replaceLast && MainWindow.Instance.Output.Inlines.Any())
             {
                 MainWindow.Instance.Output.Inlines.Remove(MainWindow.Instance.Output.Inlines.LastInline);
             } 
