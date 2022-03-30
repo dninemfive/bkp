@@ -5,6 +5,7 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
+using System.Linq;
 
 namespace bkp
 {
@@ -13,6 +14,8 @@ namespace bkp
         const string BACKUP_FILE_NAME = "backup.txt";
         public static string TargetFolder { get; set; } = @"D:/Automatic/";
         private static long? _size = null;
+        public static bool ClearCache = false;
+        private static HashSet<string> cachedPaths = new();
         public static long Size
         {
             get
@@ -28,8 +31,17 @@ namespace bkp
             }
         }
         public static long RunningTotal { get; set; } = 0;
+        private static StreamWriter Writer = null;
+        private const string CACHE_FILE_NAME = "cache.txt";
         public static Task DoBackup()
         {
+            if (!File.Exists(CACHE_FILE_NAME) || ClearCache) File.WriteAllText(CACHE_FILE_NAME, "");
+            if(ClearCache)
+            {
+                cachedPaths.Clear();
+            }
+            cachedPaths = File.ReadAllLines(CACHE_FILE_NAME).ToHashSet();
+            Writer = File.AppendText(CACHE_FILE_NAME);
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
                 // cache it in case running near midnight                
@@ -44,6 +56,7 @@ namespace bkp
                     MainWindow.Instance.UpdateProgress(result, size);
                 }
             }
+            Writer.Close();
             return Task.CompletedTask;
         }
         static List<string> Parse(this IEnumerable<string> input)
@@ -66,11 +79,20 @@ namespace bkp
         static Run Copy(string oldFilePath, string newFilePath)
         {
             //Utils.Log($"Copying {oldFilePath} to {newFilePath}.");
-            if (File.Exists(newFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
+            if (cachedPaths.Contains(newFilePath))
+            {
+                return Utils.RunFor(oldFilePath, LineType.Cached);
+            }
+            else if(File.Exists(newFilePath))
+            {
+                Writer.WriteLineAsync(newFilePath);
+                return Utils.RunFor(oldFilePath, LineType.Existence);
+            }
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 File.Copy(oldFilePath, newFilePath);
+                Writer.WriteLineAsync(newFilePath);
                 return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
             }
             catch (Exception e)

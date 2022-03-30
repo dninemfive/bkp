@@ -25,11 +25,12 @@ namespace bkp
         }
         public static SolidColorBrush Color(this LineType lt) => lt switch
         {
-            // colors tested with https://www.color-blindness.com/coblis-color-blindness-simulator/ and seem fine for all except maybe protanopia
+            // colors not yet retested with https://www.color-blindness.com/coblis-color-blindness-simulator/
             LineType.Success    => new(Colors.LimeGreen),
             LineType.Failure    => new(Colors.Red),
             LineType.Existence  => new(Colors.Cyan),
             LineType.InProgress => new(Colors.Yellow),
+            LineType.Cached     => new(Colors.Pink),
             _                   => new(Colors.White)
         };
         public static string BackupLocation(this string path) => path.Replace("C:/", $"{Backup.TargetFolder}{DateToday}/");
@@ -75,7 +76,7 @@ namespace bkp
         public static string Readable(this long bytes)
         {
             int digits = bytes.Digits();
-            return $"{(bytes / (double)digits.Divisor()):F2} {digits.Suffix()}";
+            return $"{(bytes / (double)digits.Divisor()):F3} {digits.Suffix()}";
         }
         public static int Digits(this long l)
         {
@@ -111,5 +112,5 @@ namespace bkp
             _ => "unknown"
         };
     }
-    public enum LineType { Success, Failure, Existence, InProgress, Other }    
+    public enum LineType { Success, Failure, Existence, InProgress, Cached, Other }    
 }
