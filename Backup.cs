@@ -15,7 +15,26 @@ namespace bkp
         public static string TargetFolder { get; set; } = @"D:/Automatic/";
         private static long? _size = null;
         public static bool ClearCache = false;
-        private static HashSet<string> cachedPaths = new();
+        private static HashSet<string> _cachedPaths = null;
+        private static HashSet<string> CachedPaths
+        {
+            get
+            {
+                if(_cachedPaths is null)
+                {
+                    if (!File.Exists(CACHE_FILE_NAME)) 
+                    {
+                        File.WriteAllText(CACHE_FILE_NAME, "");
+                        _cachedPaths = new();
+                    }
+                    else
+                    {
+                        _cachedPaths = File.ReadAllLines(CACHE_FILE_NAME).ToHashSet();
+                    }
+                }
+                return _cachedPaths;
+            }
+        }
         public static long Size
         {
             get
@@ -24,7 +43,9 @@ namespace bkp
                 long result = 0;
                 foreach(string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
                 {
-                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += new FileInfo(filePath).Length;
+                    foreach (string filePath in backupTarget.AllFilesRecursive()) 
+                        if(!CachedPaths.Contains(filePath))
+                            result += new FileInfo(filePath).Length;
                 }
                 _size = result;
                 return result;
@@ -38,23 +59,38 @@ namespace bkp
             if (!File.Exists(CACHE_FILE_NAME) || ClearCache) File.WriteAllText(CACHE_FILE_NAME, "");
             if(ClearCache)
             {
-                cachedPaths.Clear();
+                CachedPaths.Clear();
             }
-            cachedPaths = File.ReadAllLines(CACHE_FILE_NAME).ToHashSet();
             Writer = File.AppendText(CACHE_FILE_NAME);
+            Queue<(string backupTarget, string filePath)> targetPaths = new();
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
             {
-                // cache it in case running near midnight                
-                string s2 = backupTarget.BackupLocation();
-                Directory.CreateDirectory(s2);
+                string cachedPaths = "";
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
-                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1);
-                    long size = new FileInfo(filePath).Length;
-                    RunningTotal += size;
-                    Run result = Copy(filePath, filePath.Replace(backupTarget, s2));
-                    MainWindow.Instance.UpdateProgress(result, size);
+                    if (cachedPaths.Contains(filePath))
+                    {
+                        cachedPaths += filePath + "\n";
+                    } 
+                    else
+                    {
+                        targetPaths.Enqueue((backupTarget, filePath));
+                    }
                 }
+                if (cachedPaths.Length > 1) cachedPaths.TrimEnd('\n');
+                MainWindow.Instance.UpdateProgress(Utils.RunFor(cachedPaths, LineType.Cached), -1);
+            }
+            while(targetPaths.Any())
+            {
+                (string backupTarget, string filePath) = targetPaths.Dequeue();
+                // cache it in case running near midnight  
+                string newPath = backupTarget.BackupLocation();
+                Directory.CreateDirectory(newPath);
+                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1);
+                long size = new FileInfo(filePath).Length;
+                RunningTotal += size;
+                Run result = Copy(filePath, filePath.Replace(backupTarget, newPath));
+                MainWindow.Instance.UpdateProgress(result, size);
             }
             Writer.Close();
             return Task.CompletedTask;
@@ -79,20 +115,20 @@ namespace bkp
         static Run Copy(string oldFilePath, string newFilePath)
         {
             //Utils.Log($"Copying {oldFilePath} to {newFilePath}.");
-            if (cachedPaths.Contains(newFilePath))
+            if (CachedPaths.Contains(newFilePath))
             {
                 return Utils.RunFor(oldFilePath, LineType.Cached);
             }
             else if(File.Exists(newFilePath))
             {
-                Writer.WriteLineAsync(newFilePath);
+                Writer.WriteLineAsync(oldFilePath);
                 return Utils.RunFor(oldFilePath, LineType.Existence);
             }
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 File.Copy(oldFilePath, newFilePath);
-                Writer.WriteLineAsync(newFilePath);
+                Writer.WriteLineAsync(oldFilePath);
                 return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
             }
             catch (Exception e)
