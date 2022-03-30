@@ -65,8 +65,8 @@ namespace bkp
         }        
         static Run Copy(string oldFilePath, string newFilePath)
         {
-            Utils.Log($"Copying {oldFilePath} to {newFilePath}.");
-            if (File.Exists(newFilePath)) return Utils.RunFor(newFilePath, LineType.Existence);
+            //Utils.Log($"Copying {oldFilePath} to {newFilePath}.");
+            if (File.Exists(newFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {

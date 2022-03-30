@@ -72,7 +72,44 @@ namespace bkp
             }
             foreach (string file in Directory.EnumerateFiles(path)) yield return file;
         }
-        
+        public static string Readable(this long bytes)
+        {
+            int digits = bytes.Digits();
+            return $"{(bytes / (double)digits.Divisor()):F2} {digits.Suffix()}";
+        }
+        public static int Digits(this long l)
+        {
+            if (l < 0) l = -l;
+            int ct = 0;
+            while (l > 9)
+            {
+                l /= 10;
+                ct++;
+            }
+            return ct;
+        }
+        public static int Divisor(this int digits)
+        {
+            int result = 1;
+            for(int i = 0; i < digits / 3; i++)
+            {
+                result *= 1000;
+            }
+            return result;
+        }
+        public static string Suffix(this int digits) => digits switch
+        {
+            < 3  => "bytes",
+            < 6  => "KB",
+            < 9  => "MB",
+            < 12 => "GB",
+            < 15 => "TB",
+            < 18 => "PB",
+            < 21 => "EB",
+            < 24 => "ZB",
+            < 27 => "YB",
+            _ => "unknown"
+        };
     }
-    public enum LineType { Success, Failure, Existence, InProgress, Other }
+    public enum LineType { Success, Failure, Existence, InProgress, Other }    
 }

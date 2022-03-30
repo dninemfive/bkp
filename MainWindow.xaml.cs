@@ -56,7 +56,7 @@ namespace bkp
             if(amount >= 0)
             {
                 Progress.Value += amount;
-                ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
+                ProgressText.Text = $"{Backup.RunningTotal.Readable()}/{Backup.Size.Readable()} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
             }            
             Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();
@@ -72,7 +72,8 @@ namespace bkp
         private async void Button_StartBackup(object sender, RoutedEventArgs e)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            ToggleScroll.Visibility = Visibility.Visible;
+            // backup seems to block UI for some reason and i'm too lazy to solve that
+            // ToggleScroll.Visibility = Visibility.Visible;
             ButtonHolder.Visibility = Visibility.Collapsed;
             Utils.PrintLine("Started backup...");
             Stopwatch.Start();
