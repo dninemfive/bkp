@@ -72,8 +72,7 @@ namespace bkp
         private async void Button_StartBackup(object sender, RoutedEventArgs e)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            // backup seems to block UI for some reason and i'm too lazy to solve that
-            // ToggleScroll.Visibility = Visibility.Visible;
+            ToggleScroll.Visibility = Visibility.Visible;
             ButtonHolder.Visibility = Visibility.Collapsed;
             Utils.PrintLine("Started backup...");
             Stopwatch.Start();
@@ -91,7 +90,7 @@ namespace bkp
         public static void ForceUpdate()
         {
             DispatcherFrame frame = new();
-            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Render, new DispatcherOperationCallback(delegate (object parameter)
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate (object parameter)
             {
                 frame.Continue = false;
                 return null;

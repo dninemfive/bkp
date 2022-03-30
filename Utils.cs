@@ -75,7 +75,7 @@ namespace bkp
         public static string Readable(this long bytes)
         {
             int digits = bytes.Digits();
-            return $"{(bytes / (double)digits.Divisor()):F2} {digits.Suffix()}";
+            return $"{(bytes / (double)digits.Divisor()):F3} {digits.Suffix()}";
         }
         public static int Digits(this long l)
         {
