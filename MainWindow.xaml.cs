@@ -43,7 +43,7 @@ namespace bkp
             {
                 TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
                 ForceUpdate();
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.Background);
         }
         public void Print(Run r) => Output.Inlines.Add(r);
         public void UpdateProgress(Run run, long amount)
