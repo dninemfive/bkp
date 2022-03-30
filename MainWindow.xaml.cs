@@ -53,9 +53,12 @@ namespace bkp
         }
         private void UpdateProgressInternal(Run run, long amount)
         {
-            Progress.Value += amount;
-            ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
-            Utils.PrintLine(run, amount > 0);
+            if(amount >= 0)
+            {
+                Progress.Value += amount;
+                ProgressText.Text = $"{Backup.RunningTotal}/{Backup.Size} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
+            }            
+            Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();
         }
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
@@ -77,13 +80,11 @@ namespace bkp
             await Task.Run(() => _ = Backup.Size); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = Backup.Size;
             Progress.IsIndeterminate = false;
-            Task backup = Backup.DoBackup();
-            Progress.Foreground = new SolidColorBrush(Colors.Red);
+            await Backup.DoBackup();
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
             ToggleScroll.Visibility = Visibility.Collapsed;
-            return;
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
