@@ -101,5 +101,27 @@ namespace bkp
             }), null);
             Dispatcher.PushFrame(frame);
         }
+        private void BufferSizeBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if(e.Key == Key.Enter)
+            {
+                TextBox box = sender as TextBox;
+                ValidationResult validation = BufferSizeRule.Validate(box.Text);
+                if (validation.IsValid)
+                {
+                    box.Foreground = new SolidColorBrush(Colors.Black);
+                    BufferSize = int.Parse(box.Text);
+                    Utils.PrintLine($"valid textbox input: {BufferSize}");
+                }
+                else
+                {
+                    box.Foreground = new SolidColorBrush(Colors.Red);
+                    // todo: box tooltip with error
+                    Utils.PrintLine("invalid textbox input");
+                }
+                BindingExpression binding = BindingOperations.GetBindingExpression(box, TextBox.TextProperty);
+                binding?.UpdateSource();
+            }            
+        }
     }
 }

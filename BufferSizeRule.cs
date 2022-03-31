@@ -14,6 +14,8 @@ namespace bkp
     /// <remarks>Largely copied from https://docs.microsoft.com/en-us/dotnet/desktop/wpf/data/how-to-implement-binding-validation?view=netframeworkdesktop-4.8. </remarks>
     public class BufferSizeRule : ValidationRule
     {
+        private static readonly BufferSizeRule Inst = new();
+        public static ValidationResult Validate(string s) => Inst.Validate(s, CultureInfo.InvariantCulture);
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             int result = default;
