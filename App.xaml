@@ -8,5 +8,6 @@
         <SolidColorBrush x:Key="BackgroundTextColor" Color="White"/>
         <SolidColorBrush x:Key="ForegroundColor" Color="#444444"/>
         <SolidColorBrush x:Key="ForegroundTextColor" Color="LightGray"/>
+        <Thickness x:Key="TextPadding">6 0</Thickness>
     </Application.Resources>
 </Application>

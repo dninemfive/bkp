@@ -27,7 +27,8 @@ namespace bkp
     {
         public static MainWindow Instance { get; private set; } = null;
         public Stopwatch Stopwatch { get; private set; } = new();
-        public bool AutoScroll = true;
+        public bool AutoScroll = false;
+        public int BufferSize = 1000;
         // to avoid garbage collection per https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer
         public MainWindow()
         {
@@ -45,7 +46,12 @@ namespace bkp
                 ForceUpdate();
             }, DispatcherPriority.Background);
         }
-        public void Print(Run r) => Output.Inlines.Add(r);
+        public void Print(Run r)
+        {
+            // delete runs starting from the beginning if buffer is full
+            for (int i = 0; i < Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
+            Output.Inlines.Add(r);
+        }
         public void UpdateProgress(Run run, long amount)
         {
             Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount));
@@ -72,7 +78,6 @@ namespace bkp
         private async void Button_StartBackup(object sender, RoutedEventArgs e)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            ToggleScroll.Visibility = Visibility.Visible;
             ButtonHolder.Visibility = Visibility.Collapsed;
             Utils.PrintLine("Started backup...");
             Stopwatch.Start();
@@ -84,7 +89,6 @@ namespace bkp
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
-            ToggleScroll.Visibility = Visibility.Collapsed;
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
@@ -96,12 +100,6 @@ namespace bkp
                 return null;
             }), null);
             Dispatcher.PushFrame(frame);
-        }
-
-        private void Button_ToggleScroll(object sender, RoutedEventArgs e)
-        {
-            AutoScroll = !AutoScroll;
-            ToggleScroll.Content = (AutoScroll ? "AUTO" : "MANUAL") + " Scrolling";
         }
     }
 }
