@@ -111,17 +111,27 @@ namespace bkp
                 {
                     box.Foreground = new SolidColorBrush(Colors.Black);
                     BufferSize = int.Parse(box.Text);
-                    Utils.PrintLine($"valid textbox input: {BufferSize}");
                 }
                 else
                 {
                     box.Foreground = new SolidColorBrush(Colors.Red);
                     // todo: box tooltip with error
-                    Utils.PrintLine("invalid textbox input");
                 }
                 BindingExpression binding = BindingOperations.GetBindingExpression(box, TextBox.TextProperty);
                 binding?.UpdateSource();
             }            
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            AutoScroll = true;
+            AutoscrollCheckbox.IsChecked = AutoScroll;
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            AutoScroll = false;
+            AutoscrollCheckbox.IsChecked = AutoScroll;
         }
     }
 }
