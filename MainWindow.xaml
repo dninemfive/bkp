@@ -24,12 +24,20 @@
                            Padding="{StaticResource TextPadding}" HorizontalAlignment="Right"></TextBlock>
                 <StackPanel Orientation="Horizontal" Name="OptionHolder" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1">
                     <TextBlock Foreground="{StaticResource ForegroundTextColor}" Padding="{StaticResource TextPadding}">Auto-scrolling:</TextBlock>
-                    <CheckBox IsChecked="{Binding Path=AutoScroll}" VerticalAlignment="Center" Margin="2"/>
+                    <CheckBox IsChecked="{Binding Path=Autoscroll, FallbackValue=True}" VerticalAlignment="Center" Margin="2"/>
                     <TextBlock Foreground="{StaticResource ForegroundTextColor}" Padding="{StaticResource TextPadding}">Buffer size:</TextBlock>
-                    <TextBox Name="BufferSizeBox" Padding="{StaticResource TextPadding}">1000</TextBox>
+                    <TextBox Name="BufferSizeBox" Padding="{StaticResource TextPadding}" MinWidth="40">
+                        <TextBox.Text>
+                            <Binding Path="BufferSize" UpdateSourceTrigger="PropertyChanged" FallbackValue="1000">
+                                <Binding.ValidationRules>
+                                    <local:BufferSizeRule/>
+                                </Binding.ValidationRules>
+                            </Binding>
+                        </TextBox.Text>
+                    </TextBox>
                 </StackPanel>
             </Grid>
-            <ScrollViewer Name="Scroll">
+            <ScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto">
                 <TextBlock Name="Output" Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}" FontFamily="Courier New" Padding="6 0"></TextBlock>
             </ScrollViewer>
         </DockPanel>
