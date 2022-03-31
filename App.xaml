@@ -8,6 +8,19 @@
         <SolidColorBrush x:Key="BackgroundTextColor" Color="White"/>
         <SolidColorBrush x:Key="ForegroundColor" Color="#444444"/>
         <SolidColorBrush x:Key="ForegroundTextColor" Color="LightGray"/>
-        <Thickness x:Key="TextPadding">6 0</Thickness>
+        <Thickness x:Key="TextPadding">6 4</Thickness>
+        <!-- https://stackoverflow.com/a/31649285 -->
+        <Style x:Key="LeftSideText" TargetType="CheckBox">
+            <Style.Resources>
+                <Style TargetType="Path">
+                    <Setter Property="FlowDirection" Value="LeftToRight" />
+                </Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="FlowDirection" Value="LeftToRight" />
+                </Style>
+            </Style.Resources>
+
+            <Setter Property="FlowDirection" Value="RightToLeft" />
+        </Style>
     </Application.Resources>
 </Application>
