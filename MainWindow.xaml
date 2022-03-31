@@ -28,7 +28,7 @@
                               Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" Style="{StaticResource LeftSideText}">:Auto-Scrolling</CheckBox>
                     <!-- buffer size textbox -->
                     <TextBlock Foreground="{StaticResource ForegroundTextColor}" Margin="{StaticResource TextPadding}">Buffer size:</TextBlock>
-                    <TextBox Name="BufferSizeBox" Padding="6 0" Margin="2"  MinWidth="40" Text="{Binding BufferSize, FallbackValue=1000}"
+                    <TextBox Name="BufferSizeBox" Padding="6 0" Margin="2"  MinWidth="40" Text="{Binding BufferSize, FallbackValue=32}"
                              KeyUp="BufferSizeBox_KeyUp"/>
                 </StackPanel>
             </Grid>

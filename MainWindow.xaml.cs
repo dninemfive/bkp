@@ -28,7 +28,7 @@ namespace bkp
         public static MainWindow Instance { get; private set; } = null;
         public Stopwatch Stopwatch { get; private set; } = new();
         public bool AutoScroll = false;
-        public int BufferSize = 1000;
+        public int BufferSize = 32;
         // to avoid garbage collection per https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer
         public MainWindow()
         {
@@ -49,7 +49,7 @@ namespace bkp
         public void Print(Run r)
         {
             // delete runs starting from the beginning if buffer is full
-            for (int i = 0; i < Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
+            for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
         public void UpdateProgress(Run run, long amount)
