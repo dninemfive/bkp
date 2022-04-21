@@ -44,7 +44,7 @@ namespace bkp
             {
                 TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
                 ForceUpdate();
-            }, DispatcherPriority.Background);
+            }, DispatcherPriority.Render);
         }
         public void Print(Run r)
         {
