@@ -1,4 +1,4 @@
 .vs/
-bin/Debug/
+bin/
 obj/
 *.csproj.user
