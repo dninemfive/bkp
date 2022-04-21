@@ -110,6 +110,13 @@ namespace bkp
             < 27 => "YB",
             _ => "unknown"
         };
+        public static string Readable(this byte[] arr)
+        {
+            string ret = "";
+            foreach(byte b in arr) ret += b.ToString("X2");
+            return ret;
+        }
     }
-    public enum LineType { Success, Failure, Existence, InProgress, Other }    
+    public enum LineType { Success, Failure, Existence, InProgress, Other }
+    // https://docs.microsoft.com/en-us/troubleshoot/developer/visualstudio/csharp/general/compute-hash-values    
 }

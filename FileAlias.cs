@@ -45,10 +45,6 @@ namespace bkp
                 Utils.Log(e);
             }
         }
-        public override string ToString()
-        {
-            // todo: readable hash representation
-            return $"FileHash\n\t{Path}\n\t{Hash}";
-        }
+        public override string ToString() => $"FileHash\n\t{Path}\n\t{Hash.Readable()}";
     }
 }
