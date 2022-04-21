@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace bkp
 {
-    class FileAlias
+    public class FileAlias
     {
         public FileHash Primary { get; private set; } = null;
         public byte[] Hash => Primary.Hash;
