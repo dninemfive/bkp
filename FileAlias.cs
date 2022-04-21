@@ -19,9 +19,15 @@ namespace bkp
         }
         public void Add(FileHash alias)
         {
+            if (alias.Path == Primary.Path)
+            {
+                Utils.Log($"Attempted to alias {alias} to {Primary}, but the former *is* the primary.");
+                return;
+            }
             if (alias.Hash != Hash)
             {
                 Utils.Log($"Attempted to alias {alias} to {Primary}. Their hashes do not match.");
+                return;
             }
             Aliases.Add(alias.Path);
         }
