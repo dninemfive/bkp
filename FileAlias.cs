@@ -19,6 +19,8 @@ namespace bkp
         }
         public void Add(FileHash alias)
         {
+            if (alias is null) throw new ArgumentNullException(nameof(alias));
+            if (alias.Invalid) throw new ArgumentException($"Tried to Add an invalid Alias {alias}.");
             if (alias.Path == Primary.Path)
             {
                 Utils.Log($"Attempted to alias {alias} to {Primary}, but the former *is* the primary.");
@@ -37,6 +39,7 @@ namespace bkp
         public string Path { get; private set; } = null;
         public byte[] Hash { get; private set; } = null;
         public bool Valid { get; private set; } = false;
+        public bool Invalid => !Valid;
         public FileHash(string filePath, HashAlgorithm algo)
         {
             if (!File.Exists(filePath)) return;
