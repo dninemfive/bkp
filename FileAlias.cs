@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,15 +31,16 @@ namespace bkp
         public string Path { get; private set; } = null;
         public byte[] Hash { get; private set; } = null;
         public bool Valid { get; private set; } = false;
-        public FileHash(string filePath)
+        public FileHash(string filePath, HashAlgorithm algo)
         {
             if (!File.Exists(filePath)) return;
             Path = filePath;
-            // todo: actually hash the file
-            throw new NotImplementedException("haven't written the hashing bit yet");
             try
             {
-                // hash
+                using FileStream fs = File.OpenRead(Path);
+                // https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-6.0
+                fs.Position = 0;
+                Hash = algo.ComputeHash(fs);
                 Valid = true;
             } catch(Exception e)
             {
