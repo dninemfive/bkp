@@ -20,10 +20,7 @@ namespace bkp
             {
                 if (_size is not null) return _size.Value;
                 long result = 0;
-                foreach(string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
-                {
-                    foreach (string filePath in backupTarget.AllFilesRecursive()) result += new FileInfo(filePath).Length;
-                }
+                foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse()) result += backupTarget.FolderSize();
                 _size = result;
                 return result;
             }

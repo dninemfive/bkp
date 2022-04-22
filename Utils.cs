@@ -128,6 +128,12 @@ namespace bkp
             }
             return ret;
         }
+        public static long FolderSize(this string folderPath)
+        {
+            long result = 0;
+            foreach (string filePath in folderPath.AllFilesRecursive()) result += new FileInfo(filePath).Length;
+            return result;
+        }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other } 
 }

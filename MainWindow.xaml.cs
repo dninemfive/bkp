@@ -91,7 +91,25 @@ namespace bkp
             await Backup.DoBackup();
             Stopwatch.Stop();
             timer.Dispose();
-            Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+            Utils.PrintLine($"Final backup duration was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+        }
+        // this code is *very* similar - definitely should either make a parent type or shared base function
+        private async void Button_StartIndex(object sender, RoutedEventArgs e)
+        {
+            using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            ButtonHolder.Visibility = Visibility.Collapsed;
+            Utils.PrintLine("Started index...");
+            Stopwatch.Start();
+            Progress.IsIndeterminate = true;
+            string path = "D:/Automatic";
+            await Task.Run(() => FileRegistry.SetSize(path)); // load backup.size for the first time in a thread so the loading bar works properly
+            Progress.Maximum = FileRegistry.Size;
+            Progress.IsIndeterminate = false;
+            await FileRegistry.Index(path);
+            Stopwatch.Stop();
+            timer.Dispose();
+            Utils.PrintLine($"Final index duration was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()

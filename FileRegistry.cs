@@ -45,10 +45,24 @@ namespace bkp
                 File.AppendAllText(registryPath, fa.Serialize());
             }
         }
+        public static long Size { get; private set; }
+        public static void SetSize(string folderPath)
+        {
+            Size = folderPath.FolderSize();
+        }
+        private static long RunningTotal;
+        private static long RunningTotalNonDuplicates;
         public static Task Index(string folderPath)
         {
             using SHA256 Sha256 = SHA256.Create();
-            foreach (string filePath in folderPath.AllFilesRecursive()) Add(filePath, Sha256);
+            foreach (string filePath in folderPath.AllFilesRecursive())
+            {
+                // MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, RunningTotal, Size);
+                long size = new FileInfo(filePath).Length;
+                RunningTotal += size;
+                Add(filePath, Sha256);
+                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.Success), size, RunningTotal, Size);
+            }
             return Task.CompletedTask;
         }
         public static void Add(string path, HashAlgorithm algo)
