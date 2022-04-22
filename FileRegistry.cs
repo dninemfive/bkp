@@ -45,10 +45,11 @@ namespace bkp
                 File.AppendAllText(registryPath, fa.Serialize());
             }
         }
-        public static void Index(string folderPath)
+        public static Task Index(string folderPath)
         {
             using SHA256 Sha256 = SHA256.Create();
             foreach (string filePath in folderPath.AllFilesRecursive()) Add(filePath, Sha256);
+            return Task.CompletedTask;
         }
         public static void Add(string path, HashAlgorithm algo)
         {

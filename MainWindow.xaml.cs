@@ -55,17 +55,17 @@ namespace bkp
             for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
-        public void UpdateProgress(Run run, long amount)
+        public void UpdateProgress(Run run, long amount, long runningTotal, long size)
         {
-            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount));
+            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount, runningTotal, size));
             ForceUpdate();
         }
-        private void UpdateProgressInternal(Run run, long amount)
+        private void UpdateProgressInternal(Run run, long amount, long runningTotal, long size)
         {
             if(amount >= 0)
             {
                 Progress.Value += amount;
-                ProgressText.Text = $"{Backup.RunningTotal.Readable()}/{Backup.Size.Readable()} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
+                ProgressText.Text = $"{runningTotal.Readable()}/{size.Readable()} ({(runningTotal / (double)size):P1})";
             }            
             Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();

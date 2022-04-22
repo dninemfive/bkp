@@ -111,6 +111,7 @@ namespace bkp
             < 27 => "YB",
             _ => "unknown"
         };
+        // todo: rename this and Readable(long) to indicate the distinction (maybe SizeText/HexText?)
         public static string Readable(this byte[] arr)
         {
             string ret = "";

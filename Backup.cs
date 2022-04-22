@@ -38,11 +38,11 @@ namespace bkp
                 Directory.CreateDirectory(s2);
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
-                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1);
+                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, RunningTotal, Size);
                     long size = new FileInfo(filePath).Length;
                     RunningTotal += size;
                     Run result = Copy(filePath, filePath.Replace(backupTarget, s2));
-                    MainWindow.Instance.UpdateProgress(result, size);
+                    MainWindow.Instance.UpdateProgress(result, size, RunningTotal, Size);
                 }
             }
             return Task.CompletedTask;
