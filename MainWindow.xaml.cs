@@ -37,6 +37,8 @@ namespace bkp
             Instance = this;            
             InitializeComponent();
             File.Delete(Utils.LOG_PATH);
+            FileRegistry.Index("C:/Users/dninemfive/Pictures/althis");
+            FileRegistry.Save("test.txt");
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
