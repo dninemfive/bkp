@@ -99,7 +99,7 @@ namespace bkp
             Utils.PrintLine("Started index...");
             Stopwatch.Start();
             Progress.IsIndeterminate = true;
-            string path = "D:/Automatic";
+            string path = "C:/Users/dninemfive/Documents";
             await Task.Run(() => FileRegistry.SetSize(path)); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = FileRegistry.Size;
             Progress.IsIndeterminate = false;
@@ -107,7 +107,10 @@ namespace bkp
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final index duration was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
-
+            Progress.IsIndeterminate = true;
+            await Task.Run(() => FileRegistry.Save($"{path}/index.bkp"));
+            Progress.Value = 0;
+            Progress.IsIndeterminate = false;
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
