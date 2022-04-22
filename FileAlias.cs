@@ -48,7 +48,7 @@ namespace bkp
             string ret = Hash.Readable();
             ret += "\n\t" + Primary.Path;
             foreach (string s in Aliases) ret += "\n\t" + s;
-            return ret;
+            return ret + "\n";
         }
     }
     public class FileHash
