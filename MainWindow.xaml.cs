@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +36,26 @@ namespace bkp
             if (Instance is not null) return;
             Instance = this;            
             InitializeComponent();
-            File.Delete(Utils.LOG_PATH);            
+            File.Delete(Utils.LOG_PATH);
+            FileAlias fa = new(new FileHash("C:/Users/dninemfive/Pictures/20191126_193723.jpg", SHA256.Create()));
+            File.WriteAllText("test1.txt", fa.Serialize());
+            string hash = null;
+            List<string> paths = new();
+            foreach (string line in File.ReadAllLines("test1.txt"))
+            {                
+                if(!line.StartsWith('\t'))
+                {
+                    hash = line.Trim();
+                    paths = new();
+                } 
+                else
+                {
+                    paths.Add(line.Trim());
+                }
+            }
+            // take care of remaining hash/path combo
+            FileAlias fa2 = new(hash, paths);
+            File.WriteAllText("test2.txt", fa2.Serialize());
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {

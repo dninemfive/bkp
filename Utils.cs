@@ -117,6 +117,16 @@ namespace bkp
             foreach(byte b in arr) ret += b.ToString("X2");
             return ret;
         }
+        public static byte[] ToBytes(this string readable)
+        {
+            if (readable.Length % 2 == 1) throw new ArgumentException($"ToBytes() cannot operate on odd-length strings such as {readable}.");
+            byte[] ret = new byte[readable.Length / 2];
+            for(int i = 0; i < ret.Length; i++)
+            {
+                ret[i] = byte.Parse(readable.Substring(i * 2,2), System.Globalization.NumberStyles.AllowHexSpecifier);
+            }
+            return ret;
+        }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other } 
 }

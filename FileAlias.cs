@@ -12,15 +12,15 @@ namespace bkp
     {
         public FileHash Primary { get; private set; } = null;
         public byte[] Hash => Primary.Hash;
-        public HashSet<string> Aliases;
+        private HashSet<string> Aliases = new();
         public FileAlias(FileHash primary)
         {
             Primary = primary;
         }
-        public FileAlias(byte[] hash, List<string> paths)
+        public FileAlias(string hash, List<string> paths)
         {
             string firstPath = paths.First();
-            Primary = new FileHash(firstPath, hash);
+            Primary = new FileHash(firstPath, hash.ToBytes());
             paths.RemoveAt(0);
             foreach(string s in paths)
             {
@@ -45,9 +45,9 @@ namespace bkp
         }
         public string Serialize()
         {
-            string ret = Hash.ToString() + "\n";
-            ret += "\t" + Primary.Path + "\n";
-            foreach (string s in Aliases) ret += "\t" + s + "\n";
+            string ret = Hash.Readable();
+            ret += "\n\t" + Primary.Path;
+            foreach (string s in Aliases) ret += "\n\t" + s;
             return ret;
         }
     }
