@@ -17,6 +17,16 @@ namespace bkp
         {
             Primary = primary;
         }
+        public FileAlias(byte[] hash, List<string> paths)
+        {
+            string firstPath = paths.First();
+            Primary = new FileHash(firstPath, hash);
+            paths.RemoveAt(0);
+            foreach(string s in paths)
+            {
+                Aliases.Add(s);
+            }
+        }
         public void Add(FileHash alias)
         {
             if (alias is null) throw new ArgumentNullException(nameof(alias));
@@ -32,6 +42,13 @@ namespace bkp
                 return;
             }
             Aliases.Add(alias.Path);
+        }
+        public string Serialize()
+        {
+            string ret = Hash.ToString() + "\n";
+            ret += "\t" + Primary.Path + "\n";
+            foreach (string s in Aliases) ret += "\t" + s + "\n";
+            return ret;
         }
     }
     public class FileHash
@@ -55,6 +72,12 @@ namespace bkp
             {
                 Utils.Log(e);
             }
+        }
+        public FileHash(string filePath, byte[] hash)
+        {
+            Path = filePath;
+            Hash = hash;
+            Valid = true;
         }
         public override string ToString() => $"FileHash {Hash.Readable()} {Path}";
     }

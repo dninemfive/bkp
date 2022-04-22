@@ -118,6 +118,5 @@ namespace bkp
             return ret;
         }
     }
-    public enum LineType { Success, Failure, Existence, InProgress, Other }
-    // https://docs.microsoft.com/en-us/troubleshoot/developer/visualstudio/csharp/general/compute-hash-values    
+    public enum LineType { Success, Failure, Existence, InProgress, Other } 
 }
