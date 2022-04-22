@@ -50,8 +50,8 @@ namespace bkp
         {
             Size = folderPath.FolderSize();
         }
-        private static long RunningTotal;
-        private static long RunningTotalNonDuplicates;
+        private static long RunningTotal = 0;
+        private static long RunningTotalNonDuplicates = 0;
         public static Task Index(string folderPath)
         {
             using SHA256 Sha256 = SHA256.Create();
@@ -60,12 +60,15 @@ namespace bkp
                 // MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, RunningTotal, Size);
                 long size = new FileInfo(filePath).Length;
                 RunningTotal += size;
-                Add(filePath, Sha256);
-                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.Success), size, RunningTotal, Size);
+                LineType type = Add(filePath, Sha256);
+                if (type == LineType.Success) RunningTotalNonDuplicates += size;
+                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, type), size, RunningTotal, Size);
             }
+            // todo: proper async way to print
+            MainWindow.Instance.UpdateProgress(Utils.RunFor($"Size of non-duplicate entries: {RunningTotalNonDuplicates.Readable()}", LineType.Other), -1, RunningTotal, Size);
             return Task.CompletedTask;
         }
-        public static void Add(string path, HashAlgorithm algo)
+        public static LineType Add(string path, HashAlgorithm algo)
         {
             FileHash fileHash = new(path, algo);
             if(Aliases.ContainsKey(fileHash.Hash))
@@ -73,10 +76,12 @@ namespace bkp
                 // we can add even if already present as an alias because the set means we won't get duplicates, 
                 //    and checking is probably slower anyway
                 Aliases[fileHash.Hash].Add(fileHash);
+                return LineType.Existence;
             } 
             else
             {
                 Aliases[fileHash.Hash] = new FileAlias(fileHash);
+                return LineType.Success;
             }
         }
     }
