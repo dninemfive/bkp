@@ -52,20 +52,35 @@ namespace bkp
         }
         private static long RunningTotal = 0;
         private static long RunningTotalNonDuplicates = 0;
+        public static string Summary => $"{RunningTotal.Readable()}/{Size.Readable()} ({(RunningTotal / (double)Size):P1})" +
+                                        $"; compression ratio {(RunningTotalNonDuplicates / (double)RunningTotal):P1}";
         public static Task Index(string folderPath)
         {
+            // todo: check if index.bkp exists, and if so load that instead. have a "reindex" flag which updates changed files but DOES NOT remove missing entries
+            // (since those could be deleted once the program supports deleting duplicate files)
             using SHA256 Sha256 = SHA256.Create();
-            foreach (string filePath in folderPath.AllFilesRecursive())
+            foreach (string filePath in folderPath.AllFilesRecursive().ToHashSet().OrderBy(x => x))
             {
-                // MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, RunningTotal, Size);
-                long size = new FileInfo(filePath).Length;
-                RunningTotal += size;
+                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, replacePrevious: false);
+                long fileSize;
+                try
+                {
+                    fileSize = new FileInfo(filePath).Length;
+                } 
+                catch
+                {
+                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.Failure), -1);
+                    continue;
+                }
+                if (fileSize == 0) continue;
+                RunningTotal += fileSize;
                 LineType type = Add(filePath, Sha256);
-                if (type == LineType.Success) RunningTotalNonDuplicates += size;
-                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, type), size, RunningTotal, Size);
+                if (type == LineType.Success) RunningTotalNonDuplicates += fileSize;
+                // todo: progress bar showing each LineType color in proportion to the size of the files with those types
+                MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, type), fileSize, Summary, replacePrevious: true);
             }
             // todo: proper async way to print
-            MainWindow.Instance.UpdateProgress(Utils.RunFor($"Size of non-duplicate entries: {RunningTotalNonDuplicates.Readable()}", LineType.Other), -1, RunningTotal, Size);
+            MainWindow.Instance.PrintLineFromThread($"Size of non-duplicate entries: {RunningTotalNonDuplicates.Readable()}");
             return Task.CompletedTask;
         }
         public static LineType Add(string path, HashAlgorithm algo)

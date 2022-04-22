@@ -26,6 +26,7 @@ namespace bkp
             }
         }
         public static long RunningTotal { get; set; } = 0;
+        public static string Summary => $"{RunningTotal.Readable()}/{Size.Readable()} ({(RunningTotal / (double)Size):P1})";
         public static Task DoBackup()
         {
             foreach (string backupTarget in File.ReadAllLines(BACKUP_FILE_NAME).Parse())
@@ -35,11 +36,11 @@ namespace bkp
                 Directory.CreateDirectory(s2);
                 foreach (string filePath in backupTarget.AllFilesRecursive())
                 {
-                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, RunningTotal, Size);
-                    long size = new FileInfo(filePath).Length;
-                    RunningTotal += size;
+                    MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1, replacePrevious: false);
+                    long fileSize = new FileInfo(filePath).Length;
+                    RunningTotal += fileSize;
                     Run result = Copy(filePath, filePath.Replace(backupTarget, s2));
-                    MainWindow.Instance.UpdateProgress(result, size, RunningTotal, Size);
+                    MainWindow.Instance.UpdateProgress(result, fileSize, Summary, true);
                 }
             }
             return Task.CompletedTask;

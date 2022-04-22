@@ -53,19 +53,23 @@ namespace bkp
             for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
-        public void UpdateProgress(Run run, long amount, long runningTotal, long size)
+        public void PrintLineFromThread(string line, LineType type = LineType.Other) => UpdateProgress(Utils.RunFor(line, type), -1);
+        public void UpdateProgress(Run run, long amount, string summary = null, bool replacePrevious = false)
         {
-            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount, runningTotal, size));
+            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount, summary, replacePrevious));
             ForceUpdate();
         }
-        private void UpdateProgressInternal(Run run, long amount, long runningTotal, long size)
+        private void UpdateProgressInternal(Run run, long amount, string summary, bool replacePrevious)
         {
             if(amount >= 0)
             {
                 Progress.Value += amount;
-                ProgressText.Text = $"{runningTotal.Readable()}/{size.Readable()} ({(runningTotal / (double)size):P1})";
-            }            
-            Utils.PrintLine(run, amount >= 0);
+            }           
+            if(summary is not null)
+            {
+                ProgressText.Text = summary;
+            }
+            Utils.PrintLine(run, replacePrevious);
             if(AutoScroll) Scroll.ScrollToBottom();
         }
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
@@ -96,10 +100,11 @@ namespace bkp
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
-            Utils.PrintLine("Started index...");
-            Stopwatch.Start();
-            Progress.IsIndeterminate = true;
+            // todo: set this with a popup or smth
             string path = "C:/Users/dninemfive/Documents";
+            Utils.PrintLine($"Started indexing {path}...");
+            Stopwatch.Start();
+            Progress.IsIndeterminate = true;            
             await Task.Run(() => FileRegistry.SetSize(path)); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = FileRegistry.Size;
             Progress.IsIndeterminate = false;
