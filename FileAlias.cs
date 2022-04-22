@@ -11,7 +11,7 @@ namespace bkp
     public class FileAlias
     {
         public FileHash Primary { get; private set; } = null;
-        public byte[] Hash => Primary.Hash;
+        public string Hash => Primary.Hash;
         private HashSet<string> Aliases = new();
         public FileAlias(FileHash primary)
         {
@@ -20,7 +20,7 @@ namespace bkp
         public FileAlias(string hash, List<string> paths)
         {
             string firstPath = paths.First();
-            Primary = new FileHash(firstPath, hash.ToBytes());
+            Primary = new FileHash(hash, firstPath);
             paths.RemoveAt(0);
             foreach(string s in paths)
             {
@@ -45,16 +45,16 @@ namespace bkp
         }
         public string Serialize()
         {
-            string ret = Hash.Readable();
-            ret += "\n\t" + Primary.Path;
-            foreach (string s in Aliases) ret += "\n\t" + s;
-            return ret + "\n";
+            string ret = Hash + "\n";
+            ret += "\t" + Primary.Path + "\n";
+            foreach (string s in Aliases) ret += "\t" + s + "\n";
+            return ret;
         }
     }
     public class FileHash
     {
         public string Path { get; private set; } = null;
-        public byte[] Hash { get; private set; } = null;
+        public string Hash { get; private set; } = null;
         public bool Valid { get; private set; } = false;
         public bool Invalid => !Valid;
         public FileHash(string filePath, HashAlgorithm algo)
@@ -66,19 +66,19 @@ namespace bkp
                 using FileStream fs = File.OpenRead(Path);
                 // https://docs.microsoft.com/en-us/dotnet/api/system.security.cryptography.sha256?view=net-6.0
                 fs.Position = 0;
-                Hash = algo.ComputeHash(fs);
+                Hash = algo.ComputeHash(fs).Readable();
                 Valid = true;
             } catch(Exception e)
             {
                 Utils.Log(e);
             }
         }
-        public FileHash(string filePath, byte[] hash)
+        public FileHash(string hash, string filePath)
         {
             Path = filePath;
             Hash = hash;
             Valid = true;
         }
-        public override string ToString() => $"FileHash {Hash.Readable()} {Path}";
+        public override string ToString() => $"FileHash {Hash} {Path}";
     }
 }

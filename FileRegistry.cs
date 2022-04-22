@@ -10,7 +10,7 @@ namespace bkp
 {
     public static class FileRegistry
     {
-        public static Dictionary<byte[], FileAlias> Aliases { get; private set; } = new();        
+        public static Dictionary<string, FileAlias> Aliases { get; private set; } = new();        
         public static void Load(string registryPath)
         {
             string hash = null;
