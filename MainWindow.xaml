@@ -9,6 +9,7 @@
     <Grid>
         <DockPanel Panel.ZIndex="0">
             <ProgressBar Name ="Progress" DockPanel.Dock="Top" Height="20"/>
+            <DockPanel Name="ProportionBarHolder" DockPanel.Dock="Top" Height="20" Background="#E6E6E6"></DockPanel>
             <Grid Background="{StaticResource ForegroundColor}" DockPanel.Dock="Top">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
