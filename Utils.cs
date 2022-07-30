@@ -190,6 +190,18 @@ namespace bkp
             PrintLine(obj);
             Log(obj);
         }
+        public static bool TryDelete(string path)
+        {
+            try
+            {
+                File.Delete(path);
+                return true;
+            } catch(Exception e)
+            {
+                Utils.Log(e);
+                return false;
+            }
+        }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other }    
 }

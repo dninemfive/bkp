@@ -77,7 +77,7 @@ namespace bkp
         {
 
         }
-        private async void Button_StartBackup(object sender, RoutedEventArgs e)
+        private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
@@ -95,7 +95,13 @@ namespace bkp
             Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
             Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
             Progress.IsIndeterminate = false;
-            await Indexer.RetroactivelyIndex(folder);
+            try
+            {
+                await Indexer.RetroactivelyIndex(folder);
+            } catch(Exception e)
+            {
+                Utils.Log(e);
+            }            
             Utils.DeleteFolderIfEmptyRecursively(folder);
             Stopwatch.Stop();
             timer.Dispose();

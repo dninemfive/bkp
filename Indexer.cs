@@ -30,7 +30,7 @@ namespace bkp
                 {
                     //Utils.Log($"\t{filePath}");
                     string hash = Index(filePath);
-                    if(Utils.Copy(filePath, Path.Join(indexFolder, hash))) File.Delete(filePath);
+                    if(Utils.Copy(filePath, Path.Join(indexFolder, hash))) Utils.TryDelete(filePath);
                 }
             } finally
             {
