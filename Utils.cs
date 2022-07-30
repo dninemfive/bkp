@@ -176,6 +176,13 @@ namespace bkp
             }
             return result;
         }
+        public static void DeleteFolderIfEmptyRecursively(string path)
+        {
+            int fileCount = Directory.GetFiles(path).Length;
+            if (fileCount > 0) return;
+            foreach (string subfolder in Directory.EnumerateDirectories(path)) DeleteFolderIfEmptyRecursively(subfolder);
+            Directory.Delete(path);
+        }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other }    
 }

@@ -94,6 +94,7 @@ namespace bkp
             Progress.Maximum = Utils.CalculateSizeOf("D:/Automatic/22.2.4");
             Progress.IsIndeterminate = false;
             await Indexer.RetroactivelyIndex("D:/Automatic/22.2.4");
+            Utils.DeleteFolderIfEmptyRecursively("D:/Automatic/22.2.4");
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
