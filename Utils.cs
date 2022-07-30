@@ -138,21 +138,43 @@ namespace bkp
         public static string FileName(this string path) => Path.GetFileName(path);
         // https://stackoverflow.com/a/27019172
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
-        public static void Copy(string oldFilePath, string newFilePath)
+        public static bool Copy(string oldFilePath, string newFilePath)
         {
             long size = new FileInfo(oldFilePath).Length;
-            if (File.Exists(newFilePath)) MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Existence), size);
+            if (File.Exists(newFilePath))
+            {
+                MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Existence), size);
+                return true;
+            }
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 File.Copy(oldFilePath, newFilePath);
                 MainWindow.Instance.UpdateProgress(RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success), size);
+                return true;
             }
             catch (Exception e)
             {
                 Log(e);
                 MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Failure), size);
+                return false;
             }
+        }
+        public static long CalculateSizeOf(string path)
+        {
+            long result = 0;
+            foreach (string filePath in path.AllFilesRecursive())
+            {
+                try
+                {
+                    result += new FileInfo(filePath).Length;
+                }
+                catch (Exception e)
+                {
+                    Log(e);
+                }
+            }
+            return result;
         }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other }    

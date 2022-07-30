@@ -17,17 +17,26 @@ namespace bkp
         private static StreamWriter Bkp, Manifest;
         public static Task RetroactivelyIndex(string path)
         {
+            Size = Utils.CalculateSizeOf(path);
             string parentFolder = Directory.GetParent(path).FullName;
-            string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");
-            File.WriteAllText(bkpFile, "");
+            string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");            
+            //File.WriteAllText(bkpFile, "");
             Bkp = File.AppendText(bkpFile);
-            string indexFolder = Path.Join(parentFolder, "_index");
-            foreach(string filePath in path.AllFilesRecursive())
+            try
             {
-                string hash = Index(filePath);
-                Utils.Copy(filePath, Path.Join(indexFolder, hash));
-                File.Delete(filePath);
-            }
+                string indexFolder = Path.Join(parentFolder, "_index");
+                Utils.Log($"parentFolder = {parentFolder}\nbkpFile = {bkpFile}\nindexFolder = {indexFolder}");
+                foreach (string filePath in path.AllFilesRecursive())
+                {
+                    //Utils.Log($"\t{filePath}");
+                    string hash = Index(filePath);
+                    if(Utils.Copy(filePath, Path.Join(indexFolder, hash))) File.Delete(filePath);
+                }
+            } finally
+            {
+                Bkp.Flush();
+                Bkp.Close();
+            }            
             return Task.CompletedTask;
         }
         public static Task IndexAll()

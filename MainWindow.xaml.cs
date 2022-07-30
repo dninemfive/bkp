@@ -64,7 +64,7 @@ namespace bkp
             {
                 RunningTotal += amount;
                 Progress.Value = RunningTotal;
-                ProgressText.Text = $"{RunningTotal.Readable()}/{Backup.Size.Readable()} ({(RunningTotal / (double)Backup.Size):P1})";
+                ProgressText.Text = $"{RunningTotal.Readable()}/{Indexer.Size} ({(RunningTotal / (double)Indexer.Size):P1})";
             }            
             Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();
@@ -91,7 +91,9 @@ namespace bkp
             */
             //await Backup.DoBackup();
             //await Indexer.IndexAll();
-            await Indexer.RetroactivelyIndex("D:/Automatic/22.2.3/");
+            Progress.Maximum = Utils.CalculateSizeOf("D:/Automatic/22.2.4");
+            Progress.IsIndeterminate = false;
+            await Indexer.RetroactivelyIndex("D:/Automatic/22.2.4");
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
