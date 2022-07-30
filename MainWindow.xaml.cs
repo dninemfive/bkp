@@ -57,12 +57,14 @@ namespace bkp
             Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount));
             ForceUpdate();
         }
+        public long RunningTotal { get; private set; }
         private void UpdateProgressInternal(Run run, long amount)
         {
             if(amount >= 0)
             {
-                Progress.Value += amount;
-                ProgressText.Text = $"{Backup.RunningTotal.Readable()}/{Backup.Size.Readable()} ({(Backup.RunningTotal / (double)Backup.Size):P1})";
+                RunningTotal += amount;
+                Progress.Value = RunningTotal;
+                ProgressText.Text = $"{RunningTotal.Readable()}/{Backup.Size.Readable()} ({(RunningTotal / (double)Backup.Size):P1})";
             }            
             Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();
@@ -88,7 +90,8 @@ namespace bkp
             Progress.IsIndeterminate = false;
             */
             //await Backup.DoBackup();
-            await Indexer.IndexAll();
+            //await Indexer.IndexAll();
+            await Indexer.RetroactivelyIndex("D:/Automatic/22.2.3/");
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");

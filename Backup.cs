@@ -50,8 +50,8 @@ namespace bkp
                     MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1);
                     long size = new FileInfo(filePath).Length;
                     RunningTotal += size;
-                    Run result = Utils.Copy(filePath, filePath.Replace(backupSources, s2));
-                    MainWindow.Instance.UpdateProgress(result, size);
+                    //Run result = Utils.Copy(filePath, filePath.Replace(backupSources, s2));
+                    //MainWindow.Instance.UpdateProgress(result, size);
                 }
             }
             return Task.CompletedTask;

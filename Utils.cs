@@ -138,19 +138,20 @@ namespace bkp
         public static string FileName(this string path) => Path.GetFileName(path);
         // https://stackoverflow.com/a/27019172
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
-        public static Run Copy(string oldFilePath, string newFilePath)
+        public static void Copy(string oldFilePath, string newFilePath)
         {
-            if (File.Exists(newFilePath)) return RunFor(oldFilePath, LineType.Existence);
+            long size = new FileInfo(oldFilePath).Length;
+            if (File.Exists(newFilePath)) MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Existence), size);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 File.Copy(oldFilePath, newFilePath);
-                return RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
+                MainWindow.Instance.UpdateProgress(RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success), size);
             }
             catch (Exception e)
             {
                 Log(e);
-                return RunFor(oldFilePath, LineType.Failure);
+                MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Failure), size);
             }
         }
     }
