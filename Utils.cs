@@ -145,12 +145,12 @@ namespace bkp
             try
             {
                 File.Copy(oldFilePath, newFilePath);
-                return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
+                return RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
             }
             catch (Exception e)
             {
-                Utils.Log(e);
-                return Utils.RunFor(oldFilePath, LineType.Failure);
+                Log(e);
+                return RunFor(oldFilePath, LineType.Failure);
             }
         }
     }

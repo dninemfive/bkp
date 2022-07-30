@@ -12,9 +12,24 @@ namespace bkp
     public static class Indexer
     {
         const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
-        private static long? _size = null;
+        public static long Size { get; private set; }
         public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
         private static StreamWriter Bkp, Manifest;
+        public static Task RetroactivelyIndex(string path)
+        {
+            string parentFolder = Directory.GetParent(path).FullName;
+            string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");
+            File.WriteAllText(bkpFile, "");
+            Bkp = File.AppendText(bkpFile);
+            string indexFolder = Path.Join(parentFolder, "_index");
+            foreach(string filePath in path.AllFilesRecursive())
+            {
+                string hash = Index(filePath);
+                Utils.Copy(filePath, Path.Join(indexFolder, hash));
+                File.Delete(filePath);
+            }
+            return Task.CompletedTask;
+        }
         public static Task IndexAll()
         {
             File.WriteAllText("example.bkp", "");
@@ -25,21 +40,24 @@ namespace bkp
             }
             return Task.CompletedTask;
         }
-        public static void Index(string path)
+        public static string Index(string path)
         {
-            string line = JsonSerializer.Serialize(new FileRecord(path));
+            FileRecord fr = new(path);
+            string line = JsonSerializer.Serialize(fr);
             Bkp.WriteLine(line);
             Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
             MainWindow.ForceUpdate();
+            return fr.Hash;
         }
     }
     public class FileRecord
     {
         public string Path { get; private set; }
-        public string Hash => Path.FileHash();
+        public string Hash { get; private set; }
         public FileRecord(string path)
         {
             Path = path;
+            Hash = Path.FileHash();
         }
     }
 }
