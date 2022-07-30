@@ -35,10 +35,11 @@ namespace bkp
         };
         public static string BackupLocation(this string path) => path.Replace("C:/", $"{Backup.TargetFolder}{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
-        public static void Log(object obj) => System.IO.File.AppendAllText(LOG_PATH, $"{obj}\n");
+        public static void Log(object obj) => File.AppendAllText(LOG_PATH, $"{obj}\n");
         public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
+        public static void PrintLine(object obj, SolidColorBrush color) => Print($"{obj}\n", color);
         public static void PrintLine(Run r, bool replaceLast = true)
         {
             r.Text += "\n";
@@ -46,7 +47,7 @@ namespace bkp
             {
                 MainWindow.Instance.Output.Inlines.Remove(MainWindow.Instance.Output.Inlines.LastInline);
             } 
-            MainWindow.Instance.Print(r);  
+            MainWindow.Instance.Print(r);
         }
         public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
@@ -121,12 +122,27 @@ namespace bkp
         {
             // https://stackoverflow.com/a/51966515
             using SHA512 sha512 = SHA512.Create();
-            using FileStream fs = System.IO.File.OpenRead(path);
-            return BitConverter.ToString(sha512.ComputeHash(fs));
+            using FileStream fs = File.OpenRead(path);
+            return BitConverter.ToString(sha512.ComputeHash(fs)).Replace("-", "");
         }
         public static string FileName(this string path) => Path.GetFileName(path);
         // https://stackoverflow.com/a/27019172
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
+        public static Run Copy(string oldFilePath, string newFilePath)
+        {
+            if (File.Exists(newFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
+            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+            try
+            {
+                File.Copy(oldFilePath, newFilePath);
+                return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
+            }
+            catch (Exception e)
+            {
+                Utils.Log(e);
+                return Utils.RunFor(oldFilePath, LineType.Failure);
+            }
+        }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other }    
 }

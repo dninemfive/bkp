@@ -33,7 +33,8 @@ namespace bkp
         public MainWindow()
         {
             if (Instance is not null) return;
-            Instance = this;            
+            Instance = this;
+            File.WriteAllText(Utils.LOG_PATH, "");
             InitializeComponent();        
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
@@ -81,10 +82,13 @@ namespace bkp
             Utils.PrintLine("Started backup...");
             Stopwatch.Start();
             Progress.IsIndeterminate = true;
+            /*
             await Task.Run(() => _ = Backup.Size); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = Backup.Size;
             Progress.IsIndeterminate = false;
-            await Backup.DoBackup();
+            */
+            //await Backup.DoBackup();
+            await Indexer.IndexAll();
             Stopwatch.Stop();
             timer.Dispose();
             Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");

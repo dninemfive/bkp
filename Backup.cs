@@ -11,8 +11,7 @@ namespace bkp
 {
     public static class Backup
     {
-        const string BACKUP_SOURCE_FILE = "backup.txt";
-        public static IEnumerable<string> BackupSources => System.IO.File.ReadAllLines(BACKUP_SOURCE_FILE);
+        public static IEnumerable<string> BackupSources => Indexer.BackupSources;
         public static string TargetFolder { get; set; } = @"D:/Automatic/";
         private static long? _size = null;
         public static long Size
@@ -51,26 +50,11 @@ namespace bkp
                     MainWindow.Instance.UpdateProgress(Utils.RunFor(filePath, LineType.InProgress), -1);
                     long size = new FileInfo(filePath).Length;
                     RunningTotal += size;
-                    Run result = Copy(filePath, filePath.Replace(backupSources, s2));
+                    Run result = Utils.Copy(filePath, filePath.Replace(backupSources, s2));
                     MainWindow.Instance.UpdateProgress(result, size);
                 }
             }
             return Task.CompletedTask;
-        }
-        static Run Copy(string oldFilePath, string newFilePath)
-        {
-            if (System.IO.File.Exists(newFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
-            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
-            try
-            {
-                System.IO.File.Copy(oldFilePath, newFilePath);
-                return Utils.RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success);
-            }
-            catch (Exception e)
-            {
-                Utils.Log(e);
-                return Utils.RunFor(oldFilePath, LineType.Failure);
-            }
-        }
+        }        
     }
 }
