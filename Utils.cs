@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Documents;
@@ -11,7 +12,7 @@ namespace bkp
 {
     public static class Utils
     {
-        public const string LOG_PATH = "log.txt";
+        public const string LOG_PATH = "bkp.log";
         const string DATE_FORMAT = "yy.M.d";
         // cached to avoid issues when running near midnight
         private static DateTime? _today = null;
@@ -34,8 +35,7 @@ namespace bkp
         };
         public static string BackupLocation(this string path) => path.Replace("C:/", $"{Backup.TargetFolder}{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
-        public static void Log(string s) => File.AppendAllText(LOG_PATH, $"{s}\n");
-        public static void Log(Exception e) => File.AppendAllText(LOG_PATH, $"{e}\n");
+        public static void Log(object obj) => System.IO.File.AppendAllText(LOG_PATH, $"{obj}\n");
         public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
@@ -52,25 +52,32 @@ namespace bkp
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
-            // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
-            using var enumerator = Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).GetEnumerator();
-            bool next = true;
-            while (next)
+            Log($"AllFilesRecursive({path})");
+            try
             {
-                try
+                // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
+                using var enumerator = Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).GetEnumerator();
+                bool next = true;
+                while (next)
                 {
-                    next = enumerator.MoveNext();
+                    try
+                    {
+                        next = enumerator.MoveNext();
+                    }
+                    catch (Exception e)
+                    {
+                        Log(e);
+                    }
+                    if (next)
+                    {
+                        foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
+                    }
                 }
-                catch (Exception e)
-                {
-                    Log(e);
-                }
-                if (next)
-                {
-                    foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
-                }
+                foreach (string file in Directory.EnumerateFiles(path)) yield return file;
+            } finally
+            {
+                Log("Done!");
             }
-            foreach (string file in Directory.EnumerateFiles(path)) yield return file;
         }
         public static string Readable(this long bytes)
         {
@@ -110,6 +117,16 @@ namespace bkp
             < 27 => "YB",
             _ => "unknown"
         };
+        public static string FileHash(this string path)
+        {
+            // https://stackoverflow.com/a/51966515
+            using SHA512 sha512 = SHA512.Create();
+            using FileStream fs = System.IO.File.OpenRead(path);
+            return BitConverter.ToString(sha512.ComputeHash(fs));
+        }
+        public static string FileName(this string path) => Path.GetFileName(path);
+        // https://stackoverflow.com/a/27019172
+        public static string FolderName(this string path) => new DirectoryInfo(path).Name;
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other }    
 }

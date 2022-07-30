@@ -34,8 +34,7 @@ namespace bkp
         {
             if (Instance is not null) return;
             Instance = this;            
-            InitializeComponent();
-            File.Delete(Utils.LOG_PATH);            
+            InitializeComponent();        
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
