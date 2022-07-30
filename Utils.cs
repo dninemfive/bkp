@@ -51,34 +51,29 @@ namespace bkp
         }
         public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
-        public static IEnumerable<string> AllFilesRecursive(this string path)
+        public static IEnumerable<string> AllFilesRecursive(this string path) => AllFilesRecursive_Internal(path).OrderBy(x => x);
+        private static IEnumerable<string> AllFilesRecursive_Internal(this string path)
         {
             Log($"AllFilesRecursive({path})");
-            try
+            // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
+            using var enumerator = Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).GetEnumerator();
+            bool next = true;
+            while (next)
             {
-                // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
-                using var enumerator = Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).GetEnumerator();
-                bool next = true;
-                while (next)
+                try
                 {
-                    try
-                    {
-                        next = enumerator.MoveNext();
-                    }
-                    catch (Exception e)
-                    {
-                        Log(e);
-                    }
-                    if (next)
-                    {
-                        foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
-                    }
+                    next = enumerator.MoveNext();
                 }
-                foreach (string file in Directory.EnumerateFiles(path)) yield return file;
-            } finally
-            {
-                Log("Done!");
+                catch (Exception e)
+                {
+                    Log(e);
+                }
+                if (next)
+                {
+                    foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
+                }
             }
+            foreach (string file in Directory.EnumerateFiles(path)) yield return file;
         }
         public static string Readable(this long bytes)
         {

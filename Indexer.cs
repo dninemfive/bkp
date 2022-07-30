@@ -17,8 +17,8 @@ namespace bkp
         public static Task IndexAll()
         {
             Utils.Log("IndexAll()");
+            File.WriteAllText("example.bkp", "");
             Bkp = File.AppendText("example.bkp");
-            Utils.Log("2");
             foreach(string sourceFolder in BackupSources)
             {
                 Utils.Log($"\t{sourceFolder}");
@@ -28,7 +28,7 @@ namespace bkp
         }
         public static void Index(string path)
         {
-            Utils.Log($"\t\tIndex{path}");
+            Utils.Log($"\t\tIndex({path})");
             string line = $"{path}: {path.FileHash()}";
             Bkp.WriteLine(line);
             Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
