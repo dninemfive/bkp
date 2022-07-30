@@ -51,29 +51,44 @@ namespace bkp
         }
         public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
-        public static IEnumerable<string> AllFilesRecursive(this string path) => AllFilesRecursive_Internal(path).OrderBy(x => x);
-        private static IEnumerable<string> AllFilesRecursive_Internal(this string path)
+        public static IEnumerable<string> AllFilesRecursive(this string path)
         {
-            Log($"AllFilesRecursive({path})");
+            //Log($"\"{path}\"");
+            foreach (string subfolder in (Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)).EnumerateSafe())
+            {
+                //Log($"\t\"{subfolder}\"");
+                foreach (string file in Directory.EnumerateFiles(subfolder).EnumerateSafe())
+                {
+                    //Log($"\t\t\"{file}\"");
+                    yield return file;
+                }
+            }
+            foreach (string file in Directory.EnumerateFiles(path).EnumerateSafe())
+            {
+                //Log($"\t\"{file}\"");
+                yield return file;
+            }
+        }
+        public static IEnumerable<T> EnumerateSafe<T>(this IEnumerable<T> enumerable)
+        {
             // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
-            using var enumerator = Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).GetEnumerator();
+            using var enumerator = enumerable.GetEnumerator();
             bool next = true;
-            while (next)
+            while(next)
             {
                 try
-                {
+                {                    
                     next = enumerator.MoveNext();
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
                     Log(e);
                 }
                 if (next)
                 {
-                    foreach (string file in Directory.EnumerateFiles(enumerator.Current)) yield return file;
+                    yield return enumerator.Current;
                 }
             }
-            foreach (string file in Directory.EnumerateFiles(path)) yield return file;
         }
         public static string Readable(this long bytes)
         {
@@ -125,7 +140,7 @@ namespace bkp
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
         public static Run Copy(string oldFilePath, string newFilePath)
         {
-            if (File.Exists(newFilePath)) return Utils.RunFor(oldFilePath, LineType.Existence);
+            if (File.Exists(newFilePath)) return RunFor(oldFilePath, LineType.Existence);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {

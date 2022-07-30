@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Windows.Media;
+using System.Text.Json;
 
 namespace bkp
 {
@@ -16,23 +17,29 @@ namespace bkp
         private static StreamWriter Bkp, Manifest;
         public static Task IndexAll()
         {
-            Utils.Log("IndexAll()");
             File.WriteAllText("example.bkp", "");
             Bkp = File.AppendText("example.bkp");
             foreach(string sourceFolder in BackupSources)
             {
-                Utils.Log($"\t{sourceFolder}");
                 foreach (string filePath in sourceFolder.AllFilesRecursive()) Index(filePath);
             }
             return Task.CompletedTask;
         }
         public static void Index(string path)
         {
-            Utils.Log($"\t\tIndex({path})");
-            string line = $"{path}: {path.FileHash()}";
+            string line = JsonSerializer.Serialize(new FileRecord(path));
             Bkp.WriteLine(line);
             Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
             MainWindow.ForceUpdate();
+        }
+    }
+    public class FileRecord
+    {
+        public string Path { get; private set; }
+        public string Hash => Path.FileHash();
+        public FileRecord(string path)
+        {
+            Path = path;
         }
     }
 }
