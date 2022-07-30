@@ -150,7 +150,8 @@ namespace bkp
             try
             {
                 File.Copy(oldFilePath, newFilePath);
-                MainWindow.Instance.UpdateProgress(RunFor($"{oldFilePath}\n  ↳ {newFilePath}", LineType.Success), size);
+                // \n  ↳ {newFilePath}"
+                MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Success), size);
                 return true;
             }
             catch (Exception e)
@@ -167,7 +168,8 @@ namespace bkp
             {
                 try
                 {
-                    result += new FileInfo(filePath).Length;
+                    long l = new FileInfo(filePath).Length;
+                    result += l;
                 }
                 catch (Exception e)
                 {
@@ -182,6 +184,11 @@ namespace bkp
             if (fileCount > 0) return;
             foreach (string subfolder in Directory.EnumerateDirectories(path)) DeleteFolderIfEmptyRecursively(subfolder);
             Directory.Delete(path);
+        }
+        public static void PrintLineAndLog(object obj)
+        {
+            PrintLine(obj);
+            Log(obj);
         }
     }
     public enum LineType { Success, Failure, Existence, InProgress, Other }    

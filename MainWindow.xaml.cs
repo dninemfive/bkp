@@ -64,7 +64,7 @@ namespace bkp
             {
                 RunningTotal += amount;
                 Progress.Value = RunningTotal;
-                ProgressText.Text = $"{RunningTotal.Readable()}/{Indexer.Size} ({(RunningTotal / (double)Indexer.Size):P1})";
+                ProgressText.Text = $"{RunningTotal.Readable()}/{Indexer.Size.Readable()} ({(RunningTotal / (double)Indexer.Size):P1})";
             }            
             Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();
@@ -91,13 +91,15 @@ namespace bkp
             */
             //await Backup.DoBackup();
             //await Indexer.IndexAll();
-            Progress.Maximum = Utils.CalculateSizeOf("D:/Automatic/22.2.4");
+            string folder = "D:/Automatic/22.2.4";
+            Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
+            Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
             Progress.IsIndeterminate = false;
-            await Indexer.RetroactivelyIndex("D:/Automatic/22.2.4");
-            Utils.DeleteFolderIfEmptyRecursively("D:/Automatic/22.2.4");
+            await Indexer.RetroactivelyIndex(folder);
+            Utils.DeleteFolderIfEmptyRecursively(folder);
             Stopwatch.Stop();
             timer.Dispose();
-            Utils.PrintLine($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+            Utils.PrintLineAndLog($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
