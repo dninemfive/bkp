@@ -181,14 +181,20 @@ namespace bkp
         public static void DeleteEmptySubfolders(this string path)
         {
             foreach (string subfolder in Directory.EnumerateDirectories(path)) subfolder.DeleteEmptySubfolders();
-            Log($"there are {Directory.GetFiles(path).Length} files in {path}");
-            try
+            int numFiles = Directory.GetFiles(path).Length, numFolders = Directory.GetDirectories(path).Length;
+            Log($"there are {numFiles} files and {numFolders} folders in {path}");            
+            if (numFiles + numFolders == 0)
             {
-                if (Directory.GetFiles(path).Length == 0) Directory.Delete(path);
-            } catch(Exception e)
-            {
-                Log(e);
-            }            
+                try
+                {
+                    Log($"\tDeleting {path}");
+                    Directory.Delete(path);
+                } 
+                catch (Exception e)
+                {
+                    Log(e);
+                }
+            }                      
         }
         public static void PrintLineAndLog(object obj)
         {
@@ -199,6 +205,9 @@ namespace bkp
         {
             try
             {
+                // for some reason git objects are flagged as read-only :unamused:
+                // https://stackoverflow.com/a/8081331
+                File.SetAttributes(path, File.GetAttributes(path) & ~FileAttributes.ReadOnly);
                 File.Delete(path);
                 return true;
             } catch(Exception e)
