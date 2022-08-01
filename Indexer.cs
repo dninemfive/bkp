@@ -14,7 +14,7 @@ namespace bkp
         const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
         public static long Size { get; private set; }
         public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
-        private static StreamWriter Bkp, Manifest;
+        private static StreamWriter Bkp;
         public static Task RetroactivelyIndex(string path)
         {
             Size = Utils.CalculateSizeOf(path);
@@ -28,9 +28,7 @@ namespace bkp
                 Utils.Log($"parentFolder = {parentFolder}\nbkpFile = {bkpFile}\nindexFolder = {indexFolder}");
                 foreach (string filePath in path.AllFilesRecursive())
                 {
-                    //Utils.Log($"\t{filePath}");
-                    string hash = Index(filePath);
-                    if(Utils.Copy(filePath, Path.Join(indexFolder, hash))) Utils.TryDelete(filePath);
+                    Task.Run(() => IndexAndMove(filePath, indexFolder));
                 }
             } finally
             {
@@ -58,6 +56,11 @@ namespace bkp
             //Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
             MainWindow.ForceUpdate();
             return fr.Hash;
+        }
+        public static void IndexAndMove(string filePath, string indexFolder)
+        {
+            string hash = Index(filePath);
+            if (Utils.Copy(filePath, Path.Join(indexFolder, hash))) Utils.TryDelete(filePath);
         }
     }
     public class FileRecord

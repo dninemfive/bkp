@@ -39,7 +39,7 @@ namespace bkp
         public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
         public static void PrintLine(object obj) => Print($"{obj}\n");
         public static void PrintLine(object obj, SolidColorBrush color) => Print($"{obj}\n", color);
-        public static void PrintLine(Run r, bool replaceLast = true)
+        public static void PrintLine(Run r, bool replaceLast)
         {
             r.Text += "\n";
             if(replaceLast && MainWindow.Instance.Output.Inlines.Any())
