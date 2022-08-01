@@ -55,7 +55,7 @@ namespace bkp
             FileRecord fr = new(path);
             string line = JsonSerializer.Serialize(fr);
             Bkp.WriteLine(line);
-            Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
+            //Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
             MainWindow.ForceUpdate();
             return fr.Hash;
         }

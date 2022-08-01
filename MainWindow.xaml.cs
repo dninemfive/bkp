@@ -77,11 +77,11 @@ namespace bkp
             }
             if(NumFilesWhichExisted > 0)
             {
-                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", LineType.Existence), true);
+                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", LineType.Existence), NumFilesWhichExisted > 1);
             } 
             else
             {
-                Utils.PrintLine(Utils.RunFor(obj, type), amount >= 0);
+                Utils.PrintLine(Utils.RunFor(obj, type), false);
             }            
             if(AutoScroll) Scroll.ScrollToBottom();
         }
@@ -96,10 +96,7 @@ namespace bkp
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            ButtonHolder.Visibility = Visibility.Collapsed;
-            Utils.PrintLine("Started backup...");
-            Stopwatch.Start();
-            Progress.IsIndeterminate = true;
+            ButtonHolder.Visibility = Visibility.Collapsed;            
             /*
             await Task.Run(() => _ = Backup.Size); // load backup.size for the first time in a thread so the loading bar works properly
             Progress.Maximum = Backup.Size;
@@ -107,21 +104,29 @@ namespace bkp
             */
             //await Backup.DoBackup();
             //await Indexer.IndexAll();
-            string folder = "D:/Automatic/22.2.17";
-            Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
-            Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
-            Progress.IsIndeterminate = false;
-            try
+            string[] folders = { "D:/Automatic/22.2.25", "D:/Automatic/22.3.14", "D:/Automatic/22.3.30", "D:/Automatic/22.4.10", "D:/Automatic/22.4.21" };
+            foreach(string folder in folders)
             {
-                await Indexer.RetroactivelyIndex(folder);
-            } catch(Exception e)
-            {
-                Utils.Log(e);
-            }
-            folder.DeleteEmptySubfolders();
+                Utils.PrintLine($"Reindexing {folder}...");
+                Progress.IsIndeterminate = true;
+                Stopwatch.Reset();
+                Stopwatch.Start();
+                Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
+                Utils.PrintLineAndLog($"\tTime to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+                Progress.IsIndeterminate = false;
+                try
+                {
+                    await Indexer.RetroactivelyIndex(folder);
+                }
+                catch (Exception e)
+                {
+                    Utils.Log(e);
+                }
+                folder.DeleteEmptySubfolders();
+                Utils.PrintLineAndLog($"\tTotal time to reindex {folder} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            }            
             Stopwatch.Stop();
-            timer.Dispose();
-            Utils.PrintLineAndLog($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+            timer.Dispose();            
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
