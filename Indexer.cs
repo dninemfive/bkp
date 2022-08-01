@@ -34,6 +34,7 @@ namespace bkp
                 }
             } finally
             {
+                Utils.Log("Flushing...");
                 Bkp.Flush();
                 Bkp.Close();
             }            

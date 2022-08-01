@@ -178,12 +178,17 @@ namespace bkp
             }
             return result;
         }
-        public static void DeleteFolderIfEmptyRecursively(string path)
+        public static void DeleteEmptySubfolders(this string path)
         {
-            int fileCount = Directory.GetFiles(path).Length;
-            if (fileCount > 0) return;
-            foreach (string subfolder in Directory.EnumerateDirectories(path)) DeleteFolderIfEmptyRecursively(subfolder);
-            Directory.Delete(path);
+            foreach (string subfolder in Directory.EnumerateDirectories(path)) subfolder.DeleteEmptySubfolders();
+            Log($"there are {Directory.GetFiles(path).Length} files in {path}");
+            try
+            {
+                if (Directory.GetFiles(path).Length == 0) Directory.Delete(path);
+            } catch(Exception e)
+            {
+                Log(e);
+            }            
         }
         public static void PrintLineAndLog(object obj)
         {
@@ -198,7 +203,7 @@ namespace bkp
                 return true;
             } catch(Exception e)
             {
-                Utils.Log(e);
+                Log(e);
                 return false;
             }
         }

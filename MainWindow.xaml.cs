@@ -101,11 +101,16 @@ namespace bkp
             } catch(Exception e)
             {
                 Utils.Log(e);
-            }            
-            Utils.DeleteFolderIfEmptyRecursively(folder);
+            }
+            Utils.Log("1");
+            folder.DeleteEmptySubfolders();
+            Utils.Log("2");
             Stopwatch.Stop();
+            Utils.Log("3");
             timer.Dispose();
+            Utils.Log("4");
             Utils.PrintLineAndLog($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
+            Utils.Log("5");
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
