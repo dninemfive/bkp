@@ -33,7 +33,6 @@ namespace bkp
             LineType.InProgress => new(Colors.Yellow),
             _                   => new(Colors.White)
         };
-        public static string BackupLocation(this string path) => path.Replace("C:/", $"{Backup.TargetFolder}{DateToday}/");
         public static bool Exists(this string path) => Directory.Exists(path);
         public static void Log(object obj) => File.AppendAllText(LOG_PATH, $"{obj}\n");
         public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
@@ -53,19 +52,15 @@ namespace bkp
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
-            //Log($"\"{path}\"");
             foreach (string subfolder in (Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)).EnumerateSafe())
             {
-                //Log($"\t\"{subfolder}\"");
                 foreach (string file in Directory.EnumerateFiles(subfolder).EnumerateSafe())
                 {
-                    //Log($"\t\t\"{file}\"");
                     yield return file;
                 }
             }
             foreach (string file in Directory.EnumerateFiles(path).EnumerateSafe())
             {
-                //Log($"\t\"{file}\"");
                 yield return file;
             }
         }
@@ -143,7 +138,7 @@ namespace bkp
             long size = new FileInfo(oldFilePath).Length;
             if (File.Exists(newFilePath))
             {
-                MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Existence), size);
+                MainWindow.Instance.UpdateProgress(oldFilePath, LineType.Existence, size);
                 return true;
             }
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
@@ -151,13 +146,13 @@ namespace bkp
             {
                 File.Copy(oldFilePath, newFilePath);
                 // \n  ↳ {newFilePath}"
-                MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Success), size);
+                MainWindow.Instance.UpdateProgress(oldFilePath, LineType.Success, size);
                 return true;
             }
             catch (Exception e)
             {
                 Log(e);
-                MainWindow.Instance.UpdateProgress(RunFor(oldFilePath, LineType.Failure), size);
+                MainWindow.Instance.UpdateProgress(oldFilePath, LineType.Failure, size);
                 return false;
             }
         }
@@ -181,13 +176,11 @@ namespace bkp
         public static void DeleteEmptySubfolders(this string path)
         {
             foreach (string subfolder in Directory.EnumerateDirectories(path)) subfolder.DeleteEmptySubfolders();
-            int numFiles = Directory.GetFiles(path).Length, numFolders = Directory.GetDirectories(path).Length;
-            Log($"there are {numFiles} files and {numFolders} folders in {path}");            
+            int numFiles = Directory.GetFiles(path).Length, numFolders = Directory.GetDirectories(path).Length;       
             if (numFiles + numFolders == 0)
             {
                 try
                 {
-                    Log($"\tDeleting {path}");
                     Directory.Delete(path);
                 } 
                 catch (Exception e)

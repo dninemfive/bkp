@@ -52,21 +52,37 @@ namespace bkp
             for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
-        public void UpdateProgress(Run run, long amount)
+        public void UpdateProgress(object obj, LineType type, long amount)
         {
-            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(run, amount));
+            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(obj, type, amount));
             ForceUpdate();
         }
         public long RunningTotal { get; private set; }
-        private void UpdateProgressInternal(Run run, long amount)
+        public int NumFilesWhichExisted { get; private set; } = 0;
+        private void UpdateProgressInternal(object obj, LineType type, long amount)
         {
             if(amount >= 0)
             {
                 RunningTotal += amount;
                 Progress.Value = RunningTotal;
                 ProgressText.Text = $"{RunningTotal.Readable()}/{Indexer.Size.Readable()} ({(RunningTotal / (double)Indexer.Size):P1})";
+            }
+            if(type == LineType.Existence)
+            {
+                NumFilesWhichExisted++;
+            }
+            else
+            {
+                NumFilesWhichExisted = 0;
+            }
+            if(NumFilesWhichExisted > 0)
+            {
+                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", LineType.Existence), true);
+            } 
+            else
+            {
+                Utils.PrintLine(Utils.RunFor(obj, type), amount >= 0);
             }            
-            Utils.PrintLine(run, amount >= 0);
             if(AutoScroll) Scroll.ScrollToBottom();
         }
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
@@ -91,7 +107,7 @@ namespace bkp
             */
             //await Backup.DoBackup();
             //await Indexer.IndexAll();
-            string folder = "D:/Automatic/22.2.4";
+            string folder = "D:/Automatic/22.2.17";
             Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
             Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
             Progress.IsIndeterminate = false;
@@ -102,15 +118,10 @@ namespace bkp
             {
                 Utils.Log(e);
             }
-            Utils.Log("1");
             folder.DeleteEmptySubfolders();
-            Utils.Log("2");
             Stopwatch.Stop();
-            Utils.Log("3");
             timer.Dispose();
-            Utils.Log("4");
             Utils.PrintLineAndLog($"Final stopwatch time was {Stopwatch.Elapsed:hh\\:mm\\:ss}");
-            Utils.Log("5");
         }
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate()
