@@ -24,13 +24,13 @@ namespace bkp
                 return _today.Value.ToString(DATE_FORMAT);
             }
         }
-        public static SolidColorBrush Color(this LineType lt) => lt switch
+        public static SolidColorBrush Color(this IoResult lt) => lt switch
         {
             // colors tested with https://www.color-blindness.com/coblis-color-blindness-simulator/ and seem fine for all except maybe protanopia
-            LineType.Success    => new(Colors.LimeGreen),
-            LineType.Failure    => new(Colors.Red),
-            LineType.Existence  => new(Colors.Cyan),
-            LineType.InProgress => new(Colors.Yellow),
+            IoResult.Success    => new(Colors.LimeGreen),
+            IoResult.Failure    => new(Colors.Red),
+            IoResult.Existence  => new(Colors.Cyan),
+            IoResult.InProgress => new(Colors.Yellow),
             _                   => new(Colors.White)
         };
         public static bool Exists(this string path) => Directory.Exists(path);
@@ -48,8 +48,8 @@ namespace bkp
             } 
             MainWindow.Instance.Print(r);
         }
-        public static void PrintLine(object obj, LineType type = LineType.Other) => Print(obj, type.Color());
-        public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
+        public static void PrintLine(object obj, IoResult type = IoResult.Other) => Print(obj, type.Color());
+        public static Run RunFor(object obj, IoResult type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
             if (!Directory.Exists(path)) yield break;
@@ -134,29 +134,7 @@ namespace bkp
         public static string FileName(this string path) => Path.GetFileName(path);
         // https://stackoverflow.com/a/27019172
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
-        public static bool Copy(string oldFilePath, string newFilePath)
-        {
-            long size = new FileInfo(oldFilePath).Length;
-            if (File.Exists(newFilePath))
-            {
-                MainWindow.Instance.UpdateProgress(oldFilePath, LineType.Existence, size);
-                return true;
-            }
-            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
-            try
-            {
-                File.Copy(oldFilePath, newFilePath);
-                // \n  ↳ {newFilePath}"
-                MainWindow.Instance.UpdateProgress(oldFilePath, LineType.Success, size);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Log(e);
-                MainWindow.Instance.UpdateProgress(oldFilePath, LineType.Failure, size);
-                return false;
-            }
-        }
+        
         public static long CalculateSizeOf(string path)
         {
             long result = 0;
@@ -194,22 +172,6 @@ namespace bkp
         {
             PrintLine(obj);
             Log(obj);
-        }
-        public static bool TryDelete(string path)
-        {
-            try
-            {
-                // for some reason git objects are flagged as read-only :unamused:
-                // https://stackoverflow.com/a/8081331
-                File.SetAttributes(path, File.GetAttributes(path) & ~FileAttributes.ReadOnly);
-                File.Delete(path);
-                return true;
-            } catch(Exception e)
-            {
-                Log(e);
-                return false;
-            }
-        }
-    }
-    public enum LineType { Success, Failure, Existence, InProgress, Other }    
+        }        
+    }     
 }

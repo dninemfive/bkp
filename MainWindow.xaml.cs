@@ -52,14 +52,14 @@ namespace bkp
             for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
-        public void UpdateProgress(object obj, LineType type, long amount)
+        public void UpdateProgress(object obj, IoResult type, long amount)
         {
             Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(obj, type, amount));
             ForceUpdate();
         }
         public long RunningTotal { get; private set; }
         public int NumFilesWhichExisted { get; private set; } = 0;
-        private void UpdateProgressInternal(object obj, LineType type, long amount)
+        private void UpdateProgressInternal(object obj, IoResult type, long amount)
         {
             if(amount >= 0)
             {
@@ -67,7 +67,7 @@ namespace bkp
                 Progress.Value = RunningTotal;
                 ProgressText.Text = $"{RunningTotal.Readable()}/{Indexer.Size.Readable()} ({(RunningTotal / (double)Indexer.Size):P1})";
             }
-            if(type == LineType.Existence)
+            if(type == IoResult.Existence)
             {
                 NumFilesWhichExisted++;
             }
@@ -77,7 +77,7 @@ namespace bkp
             }
             if(NumFilesWhichExisted > 0)
             {
-                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", LineType.Existence), NumFilesWhichExisted > 1);
+                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", IoResult.Existence), NumFilesWhichExisted > 1);
             } 
             else
             {
