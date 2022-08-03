@@ -28,7 +28,8 @@ namespace bkp
                 Utils.Log($"parentFolder = {parentFolder}\nbkpFile = {bkpFile}\nindexFolder = {indexFolder}");
                 foreach (string filePath in path.AllFilesRecursive())
                 {
-                    Task.Run(() => IndexAndMove(filePath, indexFolder));
+                    //Task.Run(() => IndexAndMove(filePath, indexFolder));
+                    IndexAndMove(filePath, indexFolder);
                 }
             } finally
             {

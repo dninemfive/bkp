@@ -96,23 +96,17 @@ namespace bkp
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            ButtonHolder.Visibility = Visibility.Collapsed;            
-            /*
-            await Task.Run(() => _ = Backup.Size); // load backup.size for the first time in a thread so the loading bar works properly
-            Progress.Maximum = Backup.Size;
-            Progress.IsIndeterminate = false;
-            */
-            //await Backup.DoBackup();
-            //await Indexer.IndexAll();
-            string[] folders = { "D:/Automatic/22.2.25", "D:/Automatic/22.3.14", "D:/Automatic/22.3.30", "D:/Automatic/22.4.10", "D:/Automatic/22.4.21" };
+            ButtonHolder.Visibility = Visibility.Collapsed;
+            string[] folders = { "D:/Automatic/22.3.14", "D:/Automatic/22.3.30", "D:/Automatic/22.4.10", "D:/Automatic/22.4.21" };
             foreach(string folder in folders)
             {
                 Utils.PrintLine($"Reindexing {folder}...");
                 Progress.IsIndeterminate = true;
                 Stopwatch.Reset();
                 Stopwatch.Start();
+                RunningTotal = 0;
                 Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
-                Utils.PrintLineAndLog($"\tTime to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+                Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
                 Progress.IsIndeterminate = false;
                 try
                 {
@@ -123,7 +117,7 @@ namespace bkp
                     Utils.Log(e);
                 }
                 folder.DeleteEmptySubfolders();
-                Utils.PrintLineAndLog($"\tTotal time to reindex {folder} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+                Utils.PrintLineAndLog($"Total time to reindex {folder} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             }            
             Stopwatch.Stop();
             timer.Dispose();            

@@ -52,6 +52,7 @@ namespace bkp
         public static Run RunFor(object obj, LineType type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
+            if (!Directory.Exists(path)) yield break;
             foreach (string subfolder in (Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories)).EnumerateSafe())
             {
                 foreach (string file in Directory.EnumerateFiles(subfolder).EnumerateSafe())
