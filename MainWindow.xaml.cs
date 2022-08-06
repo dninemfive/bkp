@@ -96,15 +96,23 @@ namespace bkp
         }
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
+            Config = new("testing", new List<string>() { @"C:\Users\dninemfive\Documents\notes\obsidian" }, @"D:\Automatic");
+
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
-            Utils.PrintLine($"Beginning backup...");
+            Utils.PrintLineAndLog($"Beginning backup...");
             Progress.IsIndeterminate = true;
             Stopwatch.Reset();
             Stopwatch.Start();
             RunningTotal = 0;
-            // should run asynchronously without the Task.Run() now
-            Progress.Maximum = Config.Size;
+            try
+            {
+                await Task.Run(() => Progress.Maximum = Config.Size);
+            } 
+            catch(Exception e)
+            {
+                Utils.Log(e);
+            }            
             Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
