@@ -134,7 +134,7 @@ namespace bkp
         public static string FileName(this string path) => Path.GetFileName(path);
         // https://stackoverflow.com/a/27019172
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
-        
+        // todo: multithread this
         public static long CalculateSizeOf(string path)
         {
             long result = 0;

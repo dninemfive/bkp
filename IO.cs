@@ -71,9 +71,9 @@ namespace bkp
         }
         public abstract IoResult Execute();
     }
-    public class Move : IoOperation
+    public class MoveOperation : IoOperation
     {
-        public Move(string oldPath, string newPath) : base(oldPath, newPath) { }
+        public MoveOperation(string oldPath, string newPath) : base(oldPath, newPath) { }
         public override IoResult Execute()
         {
             IoResult result = IO.TryCopy(OldPath, NewPath);
@@ -81,14 +81,14 @@ namespace bkp
             return IO.TryDelete(OldPath);
         }
     }
-    public class Copy : IoOperation
+    public class CopyOperation : IoOperation
     {
-        public Copy(string oldPath, string newPath) : base(oldPath, newPath) { }
+        public CopyOperation(string oldPath, string newPath) : base(oldPath, newPath) { }
         public override IoResult Execute() => IO.TryCopy(OldPath, NewPath);
     }
-    public class Delete : IoOperation
+    public class DeleteOperation : IoOperation
     {
-        public Delete(string oldPath, string newPath) : base(oldPath, newPath) { }
+        public DeleteOperation(string oldPath, string newPath) : base(oldPath, newPath) { }
         public override IoResult Execute() => IO.TryDelete(OldPath);
     }
 }

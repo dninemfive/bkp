@@ -19,8 +19,7 @@ namespace bkp
         {
             Size = Utils.CalculateSizeOf(path);
             string parentFolder = Directory.GetParent(path).FullName;
-            string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");            
-            //File.WriteAllText(bkpFile, "");
+            string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");
             Bkp = File.AppendText(bkpFile);
             try
             {
@@ -28,8 +27,7 @@ namespace bkp
                 Utils.Log($"parentFolder = {parentFolder}\nbkpFile = {bkpFile}\nindexFolder = {indexFolder}");
                 foreach (string filePath in path.AllFilesRecursive())
                 {
-                    //Task.Run(() => IndexAndMove(filePath, indexFolder));
-                    IndexAndMove(filePath, indexFolder);
+                    Task.Run(() => IndexAndMove(filePath, indexFolder));
                 }
             } finally
             {
@@ -54,14 +52,17 @@ namespace bkp
             FileRecord fr = new(path);
             string line = JsonSerializer.Serialize(fr);
             Bkp.WriteLine(line);
-            //Utils.PrintLine(line, new SolidColorBrush(Colors.Orange));
-            MainWindow.ForceUpdate();
             return fr.Hash;
+        }
+        public static void IndexAndCopy(string filePath, string indexFolder)
+        {
+            string hash = Index(filePath);
+            IO.Queue.Enqueue(new CopyOperation(filePath, Path.Join(indexFolder, hash)));
         }
         public static void IndexAndMove(string filePath, string indexFolder)
         {
             string hash = Index(filePath);
-            if (Utils.Copy(filePath, Path.Join(indexFolder, hash))) Utils.TryDelete(filePath);
+            IO.Queue.Enqueue(new MoveOperation(filePath, Path.Join(indexFolder, hash)));
         }
     }
     public class FileRecord
