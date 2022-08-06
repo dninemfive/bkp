@@ -24,11 +24,16 @@ namespace bkp
             {
                 if (_size is null)
                 {
-                    _size = 0;
-                    foreach (string folder in SourceFolders) _size += Utils.CalculateSizeOf(folder);
+                    _size = CalculateSizeAsync().Result;
                 }
                 return _size.Value;
             }
+        }
+        public async Task<long> CalculateSizeAsync()
+        {
+            List<Task<long>> tasks = new();
+            foreach (string folder in SourceFolders) tasks.Add(folder.CalculateSizeAsync());
+            return (await Task.WhenAll(tasks)).Sum();
         }
     }
 }

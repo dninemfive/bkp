@@ -59,6 +59,13 @@ namespace bkp
                 return IoResult.Failure;
             }
         }
+        public static void Run()
+        {
+            while(Queue.Any() && Indexer.AnythingLeftToQueue)
+            {
+                if (Queue.TryDequeue(out IoOperation op)) Utils.PrintLine(op.OldPath, op.Execute());
+            }
+        }
     }
     public abstract class IoOperation
     {

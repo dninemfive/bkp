@@ -12,6 +12,7 @@ namespace bkp
     public static class Indexer
     {
         const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
+        public static bool AnythingLeftToQueue { get; private set; } = false;
         public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
         private static StreamWriter Bkp;
         public static Task RetroactivelyIndex(string path)
@@ -37,7 +38,29 @@ namespace bkp
         }
         public static Task Backup()
         {
-
+            AnythingLeftToQueue = true;
+            string dest = MainWindow.Config.DestinationFolder;
+            string bkpFile = Path.Join(dest, Utils.DateToday, ".bkp");
+            Bkp = File.AppendText(bkpFile);
+            string indexFolder = Path.Join(dest, "_index");
+            try
+            {
+                foreach(string folder in MainWindow.Config.SourceFolders)
+                {
+                    foreach(string file in folder.AllFilesRecursive())
+                    {
+                        IndexAndCopy(file, indexFolder);
+                    }
+                }
+            } 
+            finally
+            {
+                Utils.Log("Flushing...");
+                Bkp.Flush();
+                Bkp.Close();
+            }
+            AnythingLeftToQueue = false;
+            return Task.CompletedTask;
         }
         public static Task IndexAll()
         {

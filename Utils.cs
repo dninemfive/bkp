@@ -13,7 +13,7 @@ namespace bkp
     public static class Utils
     {
         public const string LOG_PATH = "bkp.log";
-        const string DATE_FORMAT = "yy.M.d";
+        const string DATE_FORMAT = "yyyy.M.d";
         // cached to avoid issues when running near midnight
         private static DateTime? _today = null;
         public static string DateToday
@@ -131,24 +131,40 @@ namespace bkp
             using FileStream fs = File.OpenRead(path);
             return BitConverter.ToString(sha512.ComputeHash(fs)).Replace("-", "");
         }
+        public static async Task<string> FileHashAsync(this string path)
+        {
+            // https://stackoverflow.com/a/51966515
+            using SHA512 sha512 = SHA512.Create();
+            using FileStream fs = File.OpenRead(path);
+            byte[] hash = await Task.Run(() => sha512.ComputeHash(fs));
+            return BitConverter.ToString(hash).Replace("-", "");
+        }
         public static string FileName(this string path) => Path.GetFileName(path);
         // https://stackoverflow.com/a/27019172
         public static string FolderName(this string path) => new DirectoryInfo(path).Name;
-        // todo: multithread this
-        public static long CalculateSizeOf(string path)
-        {
-            long result = 0;
+        // https://stackoverflow.com/a/64662525
+        // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
+        public static async Task<long> CalculateSizeAsync(this string path)
+        {           
+            List<Task<long?>> tasks = new();
             foreach (string filePath in path.AllFilesRecursive())
             {
-                try
-                {
-                    long l = new FileInfo(filePath).Length;
-                    result += l;
-                }
-                catch (Exception e)
-                {
-                    Log(e);
-                }
+                tasks.Add(filePath.FileSizeAsync());
+            }
+            long?[] results = await Task.WhenAll(tasks);
+            return results.Where(x => x.HasValue).Select(x => x.Value).Sum();
+        }
+        public static async Task<long?> FileSizeAsync(this string filePath)
+        {
+            long? result = null;
+            try
+            {
+                result = await Task.Run(() => new FileInfo(filePath).Length);
+            }
+            catch (Exception e)
+            {
+                Log(e);
+                return result;
             }
             return result;
         }

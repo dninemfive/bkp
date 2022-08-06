@@ -66,7 +66,7 @@ namespace bkp
             {
                 RunningTotal += amount;
                 Progress.Value = RunningTotal;
-                ProgressText.Text = $"{RunningTotal.Readable()}/{Indexer.Size.Readable()} ({(RunningTotal / (double)Indexer.Size):P1})";
+                ProgressText.Text = $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({(RunningTotal / (double)Config.Size):P1})";
             }
             if(type == IoResult.Existence)
             {
@@ -103,7 +103,8 @@ namespace bkp
             Stopwatch.Reset();
             Stopwatch.Start();
             RunningTotal = 0;
-            Progress.Maximum = await Task.Run(() => Config.Size);
+            // should run asynchronously without the Task.Run() now
+            Progress.Maximum = Config.Size;
             Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
