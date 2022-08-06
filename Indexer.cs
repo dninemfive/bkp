@@ -12,12 +12,10 @@ namespace bkp
     public static class Indexer
     {
         const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
-        public static long Size { get; private set; }
         public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
         private static StreamWriter Bkp;
         public static Task RetroactivelyIndex(string path)
         {
-            Size = Utils.CalculateSizeOf(path);
             string parentFolder = Directory.GetParent(path).FullName;
             string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");
             Bkp = File.AppendText(bkpFile);
@@ -36,6 +34,10 @@ namespace bkp
                 Bkp.Close();
             }            
             return Task.CompletedTask;
+        }
+        public static Task Backup()
+        {
+
         }
         public static Task IndexAll()
         {

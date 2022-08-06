@@ -26,6 +26,7 @@ namespace bkp
     public partial class MainWindow : Window
     {
         public static MainWindow Instance { get; private set; } = null;
+        public static Config Config { get; private set; }
         public Stopwatch Stopwatch { get; private set; } = new();
         public bool AutoScroll = false;
         public int BufferSize = 32;
@@ -97,28 +98,23 @@ namespace bkp
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
-            string[] folders = { "D:/Automatic/22.3.14", "D:/Automatic/22.3.30", "D:/Automatic/22.4.10", "D:/Automatic/22.4.21" };
-            foreach(string folder in folders)
+            Utils.PrintLine($"Beginning backup...");
+            Progress.IsIndeterminate = true;
+            Stopwatch.Reset();
+            Stopwatch.Start();
+            RunningTotal = 0;
+            Progress.Maximum = await Task.Run(() => Config.Size);
+            Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Progress.IsIndeterminate = false;
+            try
             {
-                Utils.PrintLine($"Reindexing {folder}...");
-                Progress.IsIndeterminate = true;
-                Stopwatch.Reset();
-                Stopwatch.Start();
-                RunningTotal = 0;
-                Progress.Maximum = await Task.Run(() => Utils.CalculateSizeOf(folder));
-                Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
-                Progress.IsIndeterminate = false;
-                try
-                {
-                    await Indexer.RetroactivelyIndex(folder);
-                }
-                catch (Exception e)
-                {
-                    Utils.Log(e);
-                }
-                folder.DeleteEmptySubfolders();
-                Utils.PrintLineAndLog($"Total time to reindex {folder} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
-            }            
+                await Indexer.Backup();
+            }
+            catch (Exception e)
+            {
+                Utils.Log(e);
+            }
+            Utils.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
             Stopwatch.Stop();
             timer.Dispose();            
         }
