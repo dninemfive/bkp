@@ -11,7 +11,7 @@ namespace bkp
     public enum IoResult { Success, Failure, Existence, InProgress, Other }
     public static class IO
     {
-        public static readonly ConcurrentQueue<IoOperation> Queue = new();
+        public static ConcurrentQueue<IoOperation> Queue { get; } = new();
         public static IoResult TryCopy(string oldFilePath, string newFilePath)
         {
             IoResult result;
