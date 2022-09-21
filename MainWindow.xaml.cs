@@ -55,6 +55,7 @@ namespace bkp
         }
         public void UpdateProgress(object obj, ResultCategory category, long size)
         {
+            Utils.Log($"UpdateProgress({obj}, {category}, {size})");
             Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(obj, category, size));
             ForceUpdate();
         }
@@ -63,11 +64,13 @@ namespace bkp
         public int NumFilesWhichExisted { get; private set; } = 0;
         private void UpdateProgressInternal(object obj, ResultCategory category, long size)
         {
+            Utils.Log($"UpdateProgressInternal({obj}, {category}, {size})");
             if(size >= 0)
             {
                 RunningTotal += size;
                 Progress.Value = RunningTotal;
                 ProgressText.Text = $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({(RunningTotal / (double)Config.Size):P1})";
+                Utils.Log($"asdf");
             }
             if(category == ResultCategory.NoChange)
             {
@@ -86,6 +89,7 @@ namespace bkp
                 Utils.PrintLine(Utils.RunFor(obj, category), false);
             }            
             if(AutoScroll) Scroll.ScrollToBottom();
+            Utils.Log("...end UpdateProgressInternal");
         }
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
         {
@@ -106,15 +110,17 @@ namespace bkp
             Stopwatch.Reset();
             Stopwatch.Start();
             RunningTotal = 0;
+            long size = -1;
             try
             {
-                await Task.Run(() => Progress.Maximum = Config.Size);
+                size = await Task.Run(() => Config.CalculateSizeAsync());
+                Application.Current.Dispatcher.Invoke(() => Progress.Maximum = size);
             } 
             catch(Exception e)
             {
                 Utils.Log(e);
             }            
-            Utils.PrintLineAndLog($"Time to calculate size was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Utils.PrintLineAndLog($"Time to calculate size {size} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
             {
