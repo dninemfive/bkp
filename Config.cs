@@ -22,10 +22,8 @@ namespace bkp
         {
             get
             {
-                Utils.Log("get_Size");
                 if (_size is null)
                 {
-                    Utils.Log("\t_size was null");
                     _size = CalculateSizeAsync().Result;
                 }
                 return _size.Value;
@@ -33,7 +31,6 @@ namespace bkp
         }
         public async Task<long> CalculateSizeAsync()
         {
-            Utils.Log("CalculateSizeAsync");
             List<Task<long>> tasks = new();
             foreach (string folder in SourceFolders) tasks.Add(folder.CalculateSizeAsync());
             _size = (await Task.WhenAll(tasks)).Sum();

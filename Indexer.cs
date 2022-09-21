@@ -22,7 +22,6 @@ namespace bkp
             try
             {
                 string indexFolder = Path.Join(parentFolder, "_index");
-                Utils.Log($"parentFolder = {parentFolder}\nbkpFile = {bkpFile}\nindexFolder = {indexFolder}");
                 foreach (string filePath in path.AllFilesRecursive())
                 {
                     Task.Run(() => IndexAndMove(filePath, indexFolder));
@@ -37,19 +36,16 @@ namespace bkp
         }
         public static Task Backup()
         {
-            Utils.Log("Backup()");
             string dest = MainWindow.Config.DestinationFolder;
             string bkpFile = Path.Join(dest, $"{Utils.DateToday}.bkp");
             Bkp = File.AppendText(bkpFile);
             string indexFolder = Path.Join(dest, "_index");
-            Utils.Log($"dest = {dest}, bkpFile = {bkpFile}, indexFolder = {indexFolder}");
             try
             {
                 foreach(string folder in MainWindow.Config.SourceFolders)
                 {
                     foreach(string file in folder.AllFilesRecursive())
                     {
-                        Utils.Log(file);
                         IndexAndCopy(file, indexFolder);
                     }
                 }
@@ -71,9 +67,7 @@ namespace bkp
         }
         public static void IndexAndCopy(string filePath, string indexFolder)
         {
-            Utils.Log($"IndexAndCopy({filePath}, {indexFolder})");
             string hash = Index(filePath);
-            Utils.Log($"\thash = {hash}");
             MainWindow.Instance.UpdateProgress(IO.TryCopy(filePath, Path.Join(indexFolder, hash)));
         }
         public static void IndexAndMove(string filePath, string indexFolder)

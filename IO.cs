@@ -25,9 +25,7 @@ namespace bkp
     {
         public static IoResult TryCopy(string oldFilePath, string newFilePath)
         {
-            Utils.Log($"TryCopy({oldFilePath}, {newFilePath}");
             long size = new FileInfo(oldFilePath).Length;
-            Utils.Log($"\tsize = {size}");
             if (File.Exists(newFilePath))
                 return new(oldFilePath, ResultCategory.NoChange, size);
             Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
