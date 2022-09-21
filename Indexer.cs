@@ -12,7 +12,6 @@ namespace bkp
     public static class Indexer
     {
         const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
-        public static bool AnythingLeftToQueue { get; private set; } = false;
         public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
         private static StreamWriter Bkp;
         public static Task RetroactivelyIndex(string path)
@@ -38,7 +37,6 @@ namespace bkp
         }
         public static Task Backup()
         {
-            AnythingLeftToQueue = true;
             string dest = MainWindow.Config.DestinationFolder;
             string bkpFile = Path.Join(dest, Utils.DateToday, ".bkp");
             Bkp = File.AppendText(bkpFile);
@@ -59,17 +57,6 @@ namespace bkp
                 Bkp.Flush();
                 Bkp.Close();
             }
-            AnythingLeftToQueue = false;
-            return Task.CompletedTask;
-        }
-        public static Task IndexAll()
-        {
-            File.WriteAllText("example.bkp", "");
-            Bkp = File.AppendText("example.bkp");
-            foreach(string sourceFolder in BackupSources)
-            {
-                foreach (string filePath in sourceFolder.AllFilesRecursive()) Index(filePath);
-            }
             return Task.CompletedTask;
         }
         public static string Index(string path)
@@ -82,12 +69,12 @@ namespace bkp
         public static void IndexAndCopy(string filePath, string indexFolder)
         {
             string hash = Index(filePath);
-            IO.TryCopy(filePath, Path.Join(indexFolder, hash));
+            MainWindow.Instance.UpdateProgress(IO.TryCopy(filePath, Path.Join(indexFolder, hash)));
         }
         public static void IndexAndMove(string filePath, string indexFolder)
         {
             string hash = Index(filePath);
-            IO.TryMove(filePath, Path.Join(indexFolder, hash));
+            MainWindow.Instance.UpdateProgress(IO.TryMove(filePath, Path.Join(indexFolder, hash)));
         }
     }
     public class FileRecord
