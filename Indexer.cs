@@ -87,7 +87,7 @@ namespace bkp
         public static void IndexAndMove(string filePath, string indexFolder)
         {
             string hash = Index(filePath);
-            IO.Queue.Enqueue(new MoveOperation(filePath, Path.Join(indexFolder, hash)));
+            IO.TryMove(filePath, Path.Join(indexFolder, hash));
         }
     }
     public class FileRecord

@@ -24,13 +24,13 @@ namespace bkp
                 return _today.Value.ToString(DATE_FORMAT);
             }
         }
-        public static SolidColorBrush Color(this IoResult lt) => lt switch
+        public static SolidColorBrush Color(this ResultCategory lt) => lt switch
         {
             // colors tested with https://www.color-blindness.com/coblis-color-blindness-simulator/ and seem fine for all except maybe protanopia
-            IoResult.Success    => new(Colors.LimeGreen),
-            IoResult.Failure    => new(Colors.Red),
-            IoResult.Existence  => new(Colors.Cyan),
-            IoResult.InProgress => new(Colors.Yellow),
+            ResultCategory.Success    => new(Colors.LimeGreen),
+            ResultCategory.Failure    => new(Colors.Red),
+            ResultCategory.NoChange  => new(Colors.Cyan),
+            ResultCategory.InProgress => new(Colors.Yellow),
             _                   => new(Colors.White)
         };
         public static bool Exists(this string path) => Directory.Exists(path);
@@ -48,8 +48,8 @@ namespace bkp
             } 
             MainWindow.Instance.Print(r);
         }
-        public static void PrintLine(object obj, IoResult type = IoResult.Other) => Print(obj, type.Color());
-        public static Run RunFor(object obj, IoResult type) => new Run(obj.ToString()) { Foreground = type.Color() };
+        public static void PrintLine(object obj, ResultCategory type = ResultCategory.Other) => Print(obj, type.Color());
+        public static Run RunFor(object obj, ResultCategory type) => new Run(obj.ToString()) { Foreground = type.Color() };
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
             if (!Directory.Exists(path)) yield break;

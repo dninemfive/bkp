@@ -53,22 +53,23 @@ namespace bkp
             for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
-        public void UpdateProgress(object obj, IoResult type, long amount)
+        public void UpdateProgress(object obj, ResultCategory category, long size)
         {
-            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(obj, type, amount));
+            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(obj, category, size));
             ForceUpdate();
         }
+        public void UpdateProgress(IoResult result) => UpdateProgress(result.oldFilePath, result.category, result.size);
         public long RunningTotal { get; private set; }
         public int NumFilesWhichExisted { get; private set; } = 0;
-        private void UpdateProgressInternal(object obj, IoResult type, long amount)
+        private void UpdateProgressInternal(object obj, ResultCategory category, long size)
         {
-            if(amount >= 0)
+            if(size >= 0)
             {
-                RunningTotal += amount;
+                RunningTotal += size;
                 Progress.Value = RunningTotal;
                 ProgressText.Text = $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({(RunningTotal / (double)Config.Size):P1})";
             }
-            if(type == IoResult.Existence)
+            if(category == ResultCategory.NoChange)
             {
                 NumFilesWhichExisted++;
             }
@@ -78,11 +79,11 @@ namespace bkp
             }
             if(NumFilesWhichExisted > 0)
             {
-                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", IoResult.Existence), NumFilesWhichExisted > 1);
+                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange), NumFilesWhichExisted > 1);
             } 
             else
             {
-                Utils.PrintLine(Utils.RunFor(obj, type), false);
+                Utils.PrintLine(Utils.RunFor(obj, category), false);
             }            
             if(AutoScroll) Scroll.ScrollToBottom();
         }
