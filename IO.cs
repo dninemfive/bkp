@@ -11,7 +11,6 @@ namespace bkp
     public enum IoResult { Success, Failure, Existence, InProgress, Other }
     public static class IO
     {
-        public static ConcurrentQueue<IoOperation> Queue { get; } = new();
         public static IoResult TryCopy(string oldFilePath, string newFilePath)
         {
             IoResult result;
@@ -59,43 +58,11 @@ namespace bkp
                 return IoResult.Failure;
             }
         }
-        public static void Run()
+        public static IoResult TryMove(string oldFilePath, string newFilePath)
         {
-            while(Queue.Any() && Indexer.AnythingLeftToQueue)
-            {
-                if (Queue.TryDequeue(out IoOperation op)) Utils.PrintLine(op.OldPath, op.Execute());
-            }
-        }
-    }
-    public abstract class IoOperation
-    {
-        public virtual string OldPath { get; private set; }
-        public virtual string NewPath { get; private set; }
-        public IoOperation(string oldPath, string newPath)
-        {
-            OldPath = oldPath;
-            NewPath = newPath;
-        }
-        public abstract IoResult Execute();
-    }
-    public class MoveOperation : IoOperation
-    {
-        public MoveOperation(string oldPath, string newPath) : base(oldPath, newPath) { }
-        public override IoResult Execute()
-        {
-            IoResult result = IO.TryCopy(OldPath, NewPath);
+            IoResult result = TryCopy(oldFilePath, newFilePath);
             if (result is not IoResult.Success) return result;
-            return IO.TryDelete(OldPath);
+            return TryDelete(oldFilePath);
         }
-    }
-    public class CopyOperation : IoOperation
-    {
-        public CopyOperation(string oldPath, string newPath) : base(oldPath, newPath) { }
-        public override IoResult Execute() => IO.TryCopy(OldPath, NewPath);
-    }
-    public class DeleteOperation : IoOperation
-    {
-        public DeleteOperation(string oldPath, string newPath) : base(oldPath, newPath) { }
-        public override IoResult Execute() => IO.TryDelete(OldPath);
     }
 }

@@ -82,7 +82,7 @@ namespace bkp
         public static void IndexAndCopy(string filePath, string indexFolder)
         {
             string hash = Index(filePath);
-            IO.Queue.Enqueue(new CopyOperation(filePath, Path.Join(indexFolder, hash)));
+            IO.TryCopy(filePath, Path.Join(indexFolder, hash));
         }
         public static void IndexAndMove(string filePath, string indexFolder)
         {
