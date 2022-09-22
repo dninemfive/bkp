@@ -57,17 +57,16 @@ namespace bkp
         }
         public static void CleanUp(string filePath)
         {
-            Console.Log($"CleanUp({filePath})");
-            HashSet<string> records = File.ReadAllLines(filePath).ToHashSet();
-            Console.Log($"\tNumber of lines = {records.Count}");
+            IEnumerable<string> lines = File.ReadAllLines(filePath);
+            HashSet<string> records = lines.ToHashSet();
+            Console.PrintLineAndLog($"{lines.Count()} unique lines and {records.Count} unique lines to clean up.");
             Queue<string> toWrite = new(records.OrderBy(x => x));
             File.WriteAllText(filePath, "");
             while (toWrite.TryDequeue(out string s))
             {
-                File.AppendAllText(filePath, s);
+                File.AppendAllText(filePath, $"{s}\n");
                 MainWindow.Instance.UpdateProgress(s, ResultCategory.Success, 1, records.Count);
             }
-            Console.Log("Done cleaning up.");
         }
     }
     public class FileRecord
