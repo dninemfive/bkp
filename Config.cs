@@ -32,7 +32,7 @@ namespace bkp
         public async Task<long> CalculateSizeAsync()
         {
             List<Task<long>> tasks = new();
-            foreach (string folder in SourceFolders) tasks.Add(folder.CalculateSizeAsync());
+            foreach (string folder in SourceFolders) tasks.Add(folder.TotalSizeAsync());
             _size = (await Task.WhenAll(tasks)).Sum();
             return _size.Value;
         }

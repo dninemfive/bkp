@@ -35,7 +35,7 @@ namespace bkp
         {
             if (Instance is not null) return;
             Instance = this;
-            File.WriteAllText(Utils.LOG_PATH, "");
+            File.WriteAllText(Utils.Constants.LOG_PATH, "");
             InitializeComponent();        
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
@@ -79,11 +79,11 @@ namespace bkp
             }
             if(NumFilesWhichExisted > 0)
             {
-                Utils.PrintLine(Utils.RunFor($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange), NumFilesWhichExisted > 1);
+                bkp.Output.PrintLine(bkp.Output.RunFor($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange), NumFilesWhichExisted > 1);
             } 
             else
             {
-                Utils.PrintLine(Utils.RunFor(obj, category), false);
+                bkp.Output.PrintLine(bkp.Output.RunFor(obj, category), false);
             }            
             if(AutoScroll) Scroll.ScrollToBottom();
         }
@@ -101,7 +101,7 @@ namespace bkp
 
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
-            Utils.PrintLineAndLog($"Beginning backup...");
+            bkp.Output.PrintLineAndLog($"Beginning backup...");
             Progress.IsIndeterminate = true;
             Stopwatch.Reset();
             Stopwatch.Start();
@@ -114,9 +114,9 @@ namespace bkp
             } 
             catch(Exception e)
             {
-                Utils.Log(e);
-            }            
-            Utils.PrintLineAndLog($"Time to calculate size {size} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+                bkp.Output.Log(e);
+            }
+            bkp.Output.PrintLineAndLog($"Time to calculate size {size} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
             {
@@ -124,9 +124,9 @@ namespace bkp
             }
             catch (Exception e)
             {
-                Utils.Log(e);
+                bkp.Output.Log(e);
             }
-            Utils.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
+            bkp.Output.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
             Stopwatch.Stop();
             timer.Dispose();            
         }
