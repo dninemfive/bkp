@@ -24,6 +24,7 @@ namespace bkp
                 return _today.Value.ToString(DATE_FORMAT);
             }
         }
+        #region output
         public static SolidColorBrush Color(this ResultCategory lt) => lt switch
         {
             // colors tested with https://www.color-blindness.com/coblis-color-blindness-simulator/ and seem fine for all except maybe protanopia
@@ -33,12 +34,9 @@ namespace bkp
             ResultCategory.InProgress => new(Colors.Yellow),
             _                   => new(Colors.White)
         };
-        public static bool Exists(this string path) => Directory.Exists(path);
         public static void Log(object obj) => File.AppendAllText(LOG_PATH, $"{obj}\n");
-        public static void Print(object obj) => MainWindow.Instance.Print(new Run(obj.ToString()));
-        public static void Print(object obj, SolidColorBrush color) => MainWindow.Instance.Print(new Run(obj.ToString()) { Foreground = color });
+        public static void Print(object obj) => MainWindow.Instance.Print(RunFor(obj));
         public static void PrintLine(object obj) => Print($"{obj}\n");
-        public static void PrintLine(object obj, SolidColorBrush color) => Print($"{obj}\n", color);
         public static void PrintLine(Run r, bool replaceLast)
         {
             r.Text += "\n";
@@ -48,8 +46,14 @@ namespace bkp
             } 
             MainWindow.Instance.Print(r);
         }
-        public static void PrintLine(object obj, ResultCategory type = ResultCategory.Other) => Print(obj, type.Color());
-        public static Run RunFor(object obj, ResultCategory type) => new Run(obj.ToString()) { Foreground = type.Color() };
+        public static void PrintLineAndLog(object obj)
+        {
+            PrintLine(obj);
+            Log(obj);
+        }
+        public static Run RunFor(object obj, ResultCategory type = ResultCategory.Other) => new Run(obj.ToString()) { Foreground = type.Color() };
+        #endregion output
+        #region file i/o
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
             if (!Directory.Exists(path)) yield break;
@@ -86,11 +90,8 @@ namespace bkp
                 }
             }
         }
-        public static string Readable(this long bytes)
-        {
-            int digits = bytes.Digits();
-            return $"{(bytes / (double)digits.Divisor()):F3} {digits.Suffix()}";
-        }
+        #endregion file i/o        
+        #region math
         public static int Digits(this long l)
         {
             if (l < 0) l = -l;
@@ -110,6 +111,12 @@ namespace bkp
                 result *= 1000;
             }
             return result;
+        }
+        #endregion math
+        public static string Readable(this long bytes)
+        {
+            int digits = bytes.Digits();
+            return $"{(bytes / (double)digits.Divisor()):F3} {digits.Suffix()}";
         }
         public static string Suffix(this int digits) => digits switch
         {
@@ -131,17 +138,6 @@ namespace bkp
             using FileStream fs = File.OpenRead(path);
             return BitConverter.ToString(sha512.ComputeHash(fs)).Replace("-", "");
         }
-        public static async Task<string> FileHashAsync(this string path)
-        {
-            // https://stackoverflow.com/a/51966515
-            using SHA512 sha512 = SHA512.Create();
-            using FileStream fs = File.OpenRead(path);
-            byte[] hash = await Task.Run(() => sha512.ComputeHash(fs));
-            return BitConverter.ToString(hash).Replace("-", "");
-        }
-        public static string FileName(this string path) => Path.GetFileName(path);
-        // https://stackoverflow.com/a/27019172
-        public static string FolderName(this string path) => new DirectoryInfo(path).Name;
         // https://stackoverflow.com/a/64662525
         // https://devblogs.microsoft.com/dotnet/understanding-the-whys-whats-and-whens-of-valuetask/
         public static async Task<long> CalculateSizeAsync(this string path)
@@ -183,11 +179,6 @@ namespace bkp
                     Log(e);
                 }
             }                      
-        }
-        public static void PrintLineAndLog(object obj)
-        {
-            PrintLine(obj);
-            Log(obj);
-        }        
+        }            
     }     
 }

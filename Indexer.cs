@@ -11,8 +11,6 @@ namespace bkp
 {
     public static class Indexer
     {
-        const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
-        public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
         private static StreamWriter Bkp;
         public static Task Backup()
         {
