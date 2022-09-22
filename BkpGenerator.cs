@@ -11,7 +11,7 @@ namespace bkp
 {
     public static class BkpGenerator
     {
-        private static StreamWriter Bkp;
+        private static StreamWriter Bkp { get; set; }
         public static Task Backup()
         {
             string dest = MainWindow.Config.DestinationFolder;
@@ -61,12 +61,18 @@ namespace bkp
             HashSet<string> records = lines.ToHashSet();
             Console.PrintLineAndLog($"{lines.Count()} unique lines and {records.Count} unique lines to clean up.");
             Queue<string> toWrite = new(records.OrderBy(x => x));
-            File.WriteAllText(filePath, "");
+            Utils.InvokeInMainThread(() => MainWindow.Instance.Progress.Maximum = records.Count);
+            string tempFilePath = $"{filePath}.temp";
+            StreamWriter sw = File.AppendText(tempFilePath);
             while (toWrite.TryDequeue(out string s))
             {
-                File.AppendAllText(filePath, $"{s}\n");
+                sw.WriteLine($"{s}\n");
                 MainWindow.Instance.UpdateProgress(s, ResultCategory.Success, 1, records.Count);
             }
+            sw.Flush();
+            sw.Close();
+            File.Delete(filePath);
+            File.Move(tempFilePath, filePath);
         }
     }
     public class FileRecord
