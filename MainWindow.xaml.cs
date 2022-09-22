@@ -97,7 +97,7 @@ namespace bkp
         }
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
-            Config = new("testing", new List<string>() { @"C:\Users\dninemfive\Documents\notes\obsidian" }, @"D:\Automatic");
+            Config = new("testing", File.ReadAllLines("bkp.sources"), @"D:\Automatic");
 
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;

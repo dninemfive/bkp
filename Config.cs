@@ -11,10 +11,10 @@ namespace bkp
         public string Name { get; private set; }
         public List<string> SourceFolders = new();
         public string DestinationFolder;
-        public Config(string name, List<string> sources, string destination)
+        public Config(string name, IEnumerable<string> sources, string destination)
         {
             Name = name;
-            SourceFolders = sources;
+            SourceFolders = sources.ToList();
             DestinationFolder = destination;
         }
         private long? _size = null;

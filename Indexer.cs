@@ -14,26 +14,6 @@ namespace bkp
         const string BACKUP_SOURCE_FILE = "bkp.sources", DESTINATION = "bkp.destination";
         public static IEnumerable<string> BackupSources => File.ReadAllLines(BACKUP_SOURCE_FILE);
         private static StreamWriter Bkp;
-        public static Task RetroactivelyIndex(string path)
-        {
-            string parentFolder = Directory.GetParent(path).FullName;
-            string bkpFile = Path.Join(parentFolder, $"{path.FolderName()}.bkp");
-            Bkp = File.AppendText(bkpFile);
-            try
-            {
-                string indexFolder = Path.Join(parentFolder, "_index");
-                foreach (string filePath in path.AllFilesRecursive())
-                {
-                    Task.Run(() => IndexAndMove(filePath, indexFolder));
-                }
-            } finally
-            {
-                Utils.Log("Flushing...");
-                Bkp.Flush();
-                Bkp.Close();
-            }            
-            return Task.CompletedTask;
-        }
         public static Task Backup()
         {
             string dest = MainWindow.Config.DestinationFolder;
@@ -67,13 +47,15 @@ namespace bkp
         }
         public static void IndexAndCopy(string filePath, string indexFolder)
         {
-            string hash = Index(filePath);
-            MainWindow.Instance.UpdateProgress(IO.TryCopy(filePath, Path.Join(indexFolder, hash)));
-        }
-        public static void IndexAndMove(string filePath, string indexFolder)
-        {
-            string hash = Index(filePath);
-            MainWindow.Instance.UpdateProgress(IO.TryMove(filePath, Path.Join(indexFolder, hash)));
+            try
+            {
+                string hash = Index(filePath);
+                MainWindow.Instance.UpdateProgress(IO.TryCopy(filePath, Path.Join(indexFolder, hash)));
+            }
+            catch
+            {
+                MainWindow.Instance.UpdateProgress(filePath, ResultCategory.Failure, -1);
+            }
         }
     }
     public class FileRecord
