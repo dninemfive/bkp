@@ -93,9 +93,10 @@ namespace bkp
         {
 
         }
-        private void Button_CleanUp(object sender, RoutedEventArgs e)
+        private async void Button_CleanUp(object sender, RoutedEventArgs e)
         {
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            ButtonHolder.Visibility = Visibility.Collapsed;
             string bkpFile = System.IO.Path.Join(Config.DestinationFolder, $"{Console.DateToday}.bkp");
             Console.PrintLineAndLog($"Cleaning up {bkpFile}...");
             Progress.IsIndeterminate = true;
@@ -103,20 +104,18 @@ namespace bkp
             Stopwatch.Start();
             try
             {
-                Task.Run(() => BkpGenerator.CleanUp(bkpFile));
+                await Task.Run(() => BkpGenerator.CleanUp(bkpFile));
             } 
             catch(Exception ex)
             {
                 Console.PrintLineAndLog(ex);
             }
-            Console.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Console.PrintLineAndLog($"Total time to clean up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Stopwatch.Stop();
             timer.Dispose();
         }
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
-            
-
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
             Console.PrintLineAndLog($"Beginning backup...");
