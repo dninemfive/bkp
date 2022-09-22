@@ -55,7 +55,7 @@ namespace bkp
                 MainWindow.Instance.UpdateProgress(filePath, ResultCategory.Failure, -1);
             }
         }
-        public static void CleanUp(string filePath)
+        public static Task CleanUp(string filePath)
         {
             IEnumerable<string> lines = File.ReadAllLines(filePath);
             HashSet<string> records = lines.ToHashSet();
@@ -66,13 +66,14 @@ namespace bkp
             StreamWriter sw = File.AppendText(tempFilePath);
             while (toWrite.TryDequeue(out string s))
             {
-                sw.WriteLine($"{s}\n");
+                sw.WriteLine(s);
                 MainWindow.Instance.UpdateProgress(s, ResultCategory.Success, 1, records.Count);
             }
             sw.Flush();
             sw.Close();
             File.Delete(filePath);
             File.Move(tempFilePath, filePath);
+            return Task.CompletedTask;
         }
     }
     public class FileRecord

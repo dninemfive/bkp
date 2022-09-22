@@ -101,22 +101,27 @@ namespace bkp
         {
 
         }
-        private async void Button_CleanUp(object sender, RoutedEventArgs e)
+        private Timer HideButtonsAndStartTimer()
         {
-            using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            Timer result = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
-            string bkpFile = System.IO.Path.Join(Config.DestinationFolder, $"{Console.DateToday}.bkp");
-            Console.PrintLineAndLog($"Cleaning up {bkpFile}...");
-            Progress.IsIndeterminate = true;
             Stopwatch.Reset();
             Stopwatch.Start();
+            return result;
+        }
+        private async void Button_CleanUp(object sender, RoutedEventArgs _)
+        {
+            using Timer timer = HideButtonsAndStartTimer();
+            string bkpFile = System.IO.Path.Join(Config.DestinationFolder, $"{Console.DateToday}.bkp");
+            Console.PrintLineAndLog($"Cleaning up {bkpFile}...");                     
+            Progress.IsIndeterminate = true;
             try
             {
-                await Task.Run(() => BkpGenerator.CleanUp(bkpFile));
+                await BkpGenerator.CleanUp(bkpFile);
             } 
             catch(Exception ex)
             {
-                Console.PrintLineAndLog(ex);
+                Console.Log(ex);
             }
             Console.PrintLineAndLog($"Total time to clean up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Stopwatch.Stop();
@@ -124,12 +129,9 @@ namespace bkp
         }
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
-            using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
-            ButtonHolder.Visibility = Visibility.Collapsed;
+            using Timer timer = HideButtonsAndStartTimer();
             Console.PrintLineAndLog($"Beginning backup...");
-            Progress.IsIndeterminate = true;
-            Stopwatch.Reset();
-            Stopwatch.Start();
+            Progress.IsIndeterminate = true;            
             RunningTotal = 0;
             long size = -1;
             try
@@ -141,7 +143,7 @@ namespace bkp
             {
                 Console.Log(e);
             }
-            Console.PrintLineAndLog($"Time to calculate size {size} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Console.PrintLineAndLog($"Time to calculate size {size.Readable()} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
             {
