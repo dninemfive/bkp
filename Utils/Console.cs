@@ -22,7 +22,7 @@ namespace bkp
             _                   => new(Colors.White)
         };
         public static void Log(object obj) => File.AppendAllText(Constants.LOG_PATH, $"{obj}\n");
-        public static void Print(object obj) => MainWindow.Instance.Print(RunFor(obj));
+        public static void Print(object obj) => Utils.InvokeInMainThread(() => MainWindow.Instance.Print(RunFor(obj)));
         public static void PrintLine(object obj) => Print($"{obj}\n");
         public static void PrintLine(Run r, bool replaceLast)
         {

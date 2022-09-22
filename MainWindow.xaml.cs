@@ -56,19 +56,27 @@ namespace bkp
             Output.Inlines.Add(r);
         }
 #region UpdateProgress
-        public void UpdateProgress(object obj, ResultCategory category, long size)
+        public void UpdateProgress(object obj, ResultCategory category, long size, long? overrideMax = null)
         {
-            Utils.InvokeInMainThread(() => UpdateProgressInternal(obj, category, size), DispatcherPriority.Send);
+            Utils.InvokeInMainThread(() => UpdateProgressInternal(obj, category, size, overrideMax), DispatcherPriority.Send);
             Utils.ForceUpdate();
         }
         public void UpdateProgress(IoResult result) => UpdateProgress(result.oldFilePath, result.category, result.size);        
-        private void UpdateProgressInternal(object obj, ResultCategory category, long size)
+        private void UpdateProgressInternal(object obj, ResultCategory category, long size, long? overrideMax = null)
         {
             if(size >= 0)
             {
+                Progress.IsIndeterminate = false;
                 RunningTotal += size;
                 Progress.Value = RunningTotal;
-                ProgressText.Text = $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({(RunningTotal / (double)Config.Size):P1})";
+                if(overrideMax is not null)
+                {
+                    ProgressText.Text = $"{RunningTotal}/{overrideMax} ({(RunningTotal / (double)overrideMax):P1})";
+                }
+                else
+                {
+                    ProgressText.Text = $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({(RunningTotal / (double)Config.Size):P1})";
+                }
             }
             if(category == ResultCategory.NoChange)
             {

@@ -58,23 +58,16 @@ namespace bkp
         public static void CleanUp(string filePath)
         {
             Console.Log($"CleanUp({filePath})");
-            IEnumerable<string> recordStrings = File.ReadAllLines(filePath);
-            Console.Log($"\tAll {recordStrings.Count()} lines read");
-            HashSet<FileRecord> records = recordStrings.Select(x => JsonSerializer.Deserialize<FileRecord>(x)).ToHashSet();
+            HashSet<string> records = File.ReadAllLines(filePath).ToHashSet();
             Console.Log($"\tNumber of lines = {records.Count}");
-            Utils.InvokeInMainThread(delegate {
-                MainWindow.Instance.Progress.Maximum = records.Count;
-                MainWindow.Instance.Progress.IsIndeterminate = false;
-            });
-            Console.Log($"\tmaking queue...");
-            Queue<string> toWrite = new(records.OrderBy(x => x.Path).Select(x => JsonSerializer.Serialize(x)));
-            Console.Log($"\t...done!");
+            Queue<string> toWrite = new(records.OrderBy(x => x));
             File.WriteAllText(filePath, "");
             while (toWrite.TryDequeue(out string s))
             {
                 File.AppendAllText(filePath, s);
-                MainWindow.Instance.UpdateProgress(s, ResultCategory.Success, 1);
+                MainWindow.Instance.UpdateProgress(s, ResultCategory.Success, 1, records.Count);
             }
+            Console.Log("Done cleaning up.");
         }
     }
     public class FileRecord
