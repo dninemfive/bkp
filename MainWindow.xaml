@@ -42,8 +42,8 @@
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Button Name="SetTargetFolderButton" Padding="8" Click="Button_SelectTargetFolder" Grid.Row="0">Set target folder...</Button>
-            <Button Name="SetBackupFoldersButton" Padding="8" Click="Button_SelectBackupFolders" Grid.Row="1">Set backup folders...</Button>
+            <Button Name="SetTargetFolderButton" Padding="8" Click="Button_Settings" Grid.Row="0">Settings</Button>
+            <Button Name="SetBackupFoldersButton" Padding="8" Click="Button_CleanUp" Grid.Row="1">Clean Up</Button>
             <Button Name="StartButton" Padding="8" Click="Button_StartBackup" Grid.Row="2">Start backup</Button>
         </Grid>                
     </Grid>

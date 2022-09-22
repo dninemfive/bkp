@@ -37,7 +37,8 @@ namespace bkp
             if (Instance is not null) return;
             Instance = this;
             File.WriteAllText(Constants.LOG_PATH, "");
-            InitializeComponent();        
+            InitializeComponent();
+            Config = new("testing", File.ReadAllLines("bkp.sources"), @"D:\Automatic");
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
@@ -88,17 +89,33 @@ namespace bkp
             if(AutoScroll) Scroll.ScrollToBottom();
         }
 #endregion UpdateProgress
-        private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
+        private void Button_Settings(object sender, RoutedEventArgs e)
         {
 
         }
-        private void Button_SelectBackupFolders(object sender, RoutedEventArgs e)
+        private void Button_CleanUp(object sender, RoutedEventArgs e)
         {
-
+            using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
+            string bkpFile = System.IO.Path.Join(Config.DestinationFolder, $"{Console.DateToday}.bkp");
+            Console.PrintLineAndLog($"Cleaning up {bkpFile}...");
+            Progress.IsIndeterminate = true;
+            Stopwatch.Reset();
+            Stopwatch.Start();
+            try
+            {
+                Task.Run(() => BkpGenerator.CleanUp(bkpFile));
+            } 
+            catch(Exception ex)
+            {
+                Console.PrintLineAndLog(ex);
+            }
+            Console.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Stopwatch.Stop();
+            timer.Dispose();
         }
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
-            Config = new("testing", File.ReadAllLines("bkp.sources"), @"D:\Automatic");
+            
 
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
@@ -111,7 +128,7 @@ namespace bkp
             try
             {
                 size = await Task.Run(() => Config.CalculateSizeAsync());
-                Application.Current.Dispatcher.Invoke(() => Progress.Maximum = size);
+                Utils.InvokeInMainThread(() => Progress.Maximum = size);
             } 
             catch(Exception e)
             {
@@ -121,7 +138,7 @@ namespace bkp
             Progress.IsIndeterminate = false;
             try
             {
-                await Indexer.Backup();
+                await BkpGenerator.Backup();
             }
             catch (Exception e)
             {

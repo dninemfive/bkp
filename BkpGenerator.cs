@@ -9,7 +9,7 @@ using System.Text.Json;
 
 namespace bkp
 {
-    public static class Indexer
+    public static class BkpGenerator
     {
         private static StreamWriter Bkp;
         public static Task Backup()
@@ -54,6 +54,11 @@ namespace bkp
             {
                 MainWindow.Instance.UpdateProgress(filePath, ResultCategory.Failure, -1);
             }
+        }
+        public static void CleanUp(string filePath)
+        {
+            HashSet<FileRecord> records = File.ReadAllLines(filePath).Select(x => JsonSerializer.Deserialize<FileRecord>(x)).ToHashSet();
+            File.WriteAllLines(filePath, records.OrderBy(x => x.Path).Select(x => JsonSerializer.Serialize(x)));
         }
     }
     public class FileRecord
