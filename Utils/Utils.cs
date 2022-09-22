@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace bkp
 {
@@ -21,13 +23,26 @@ namespace bkp
                 }
                 catch (Exception e)
                 {
-                    Output.Log(e);
+                    Console.Log(e);
                 }
                 if (next)
                 {
                     yield return enumerator.Current;
                 }
             }
+        }
+        public static void InvokeInMainThread(this Action action, DispatcherPriority priority = DispatcherPriority.Background) 
+            => Application.Current.Dispatcher.Invoke(action, priority);
+        // https://stackoverflow.com/a/616676
+        public static void ForceUpdate()
+        {
+            DispatcherFrame frame = new();
+            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate (object parameter)
+            {
+                frame.Continue = false;
+                return null;
+            }), null);
+            Dispatcher.PushFrame(frame);
         }
     }
 }

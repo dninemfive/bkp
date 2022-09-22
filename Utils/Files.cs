@@ -38,7 +38,7 @@ namespace bkp
             }
             catch (Exception e)
             {
-                Output.Log(e);
+                Console.Log(e);
                 return result;
             }
             return result;
@@ -55,7 +55,7 @@ namespace bkp
                 }
                 catch (Exception e)
                 {
-                    Output.Log(e);
+                    Console.Log(e);
                 }
             }
         }

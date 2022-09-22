@@ -28,24 +28,25 @@ namespace bkp
         public static MainWindow Instance { get; private set; } = null;
         public static Config Config { get; private set; }
         public Stopwatch Stopwatch { get; private set; } = new();
+        public long RunningTotal { get; private set; }
+        public int NumFilesWhichExisted { get; private set; } = 0;
         public bool AutoScroll = false;
-        public int BufferSize = 32;
-        // to avoid garbage collection per https://docs.microsoft.com/en-us/dotnet/api/system.threading.timer
+        public int BufferSize = 71;
         public MainWindow()
         {
             if (Instance is not null) return;
             Instance = this;
-            File.WriteAllText(Utils.Constants.LOG_PATH, "");
+            File.WriteAllText(Constants.LOG_PATH, "");
             InitializeComponent();        
         }
         private void UpdateTimer(object sender, PropertyChangedEventArgs e)
         {
             // https://stackoverflow.com/a/9732853
-            Application.Current.Dispatcher.Invoke(delegate()
+            Utils.InvokeInMainThread(delegate ()
             {
                 TimeElapsed.Text = $"{Stopwatch.Elapsed:hh\\:mm\\:ss}";
-                ForceUpdate();
-            }, DispatcherPriority.Background);
+                Utils.ForceUpdate();
+            });
         }
         public void Print(Run r)
         {
@@ -53,14 +54,13 @@ namespace bkp
             for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
             Output.Inlines.Add(r);
         }
+#region UpdateProgress
         public void UpdateProgress(object obj, ResultCategory category, long size)
         {
-            Application.Current.Dispatcher.Invoke(() => UpdateProgressInternal(obj, category, size));
-            ForceUpdate();
+            Utils.InvokeInMainThread(() => UpdateProgressInternal(obj, category, size), DispatcherPriority.Send);
+            Utils.ForceUpdate();
         }
-        public void UpdateProgress(IoResult result) => UpdateProgress(result.oldFilePath, result.category, result.size);
-        public long RunningTotal { get; private set; }
-        public int NumFilesWhichExisted { get; private set; } = 0;
+        public void UpdateProgress(IoResult result) => UpdateProgress(result.oldFilePath, result.category, result.size);        
         private void UpdateProgressInternal(object obj, ResultCategory category, long size)
         {
             if(size >= 0)
@@ -79,14 +79,15 @@ namespace bkp
             }
             if(NumFilesWhichExisted > 0)
             {
-                bkp.Output.PrintLine(bkp.Output.RunFor($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange), NumFilesWhichExisted > 1);
+                Console.PrintLine(Console.RunFor($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange), NumFilesWhichExisted > 1);
             } 
             else
             {
-                bkp.Output.PrintLine(bkp.Output.RunFor(obj, category), false);
+                Console.PrintLine(Console.RunFor(obj, category), false);
             }            
             if(AutoScroll) Scroll.ScrollToBottom();
         }
+#endregion UpdateProgress
         private void Button_SelectTargetFolder(object sender, RoutedEventArgs e)
         {
 
@@ -101,7 +102,7 @@ namespace bkp
 
             using Timer timer = new(new TimerCallback((s) => UpdateTimer(this, new PropertyChangedEventArgs(nameof(Stopwatch)))), null, 0, 500);
             ButtonHolder.Visibility = Visibility.Collapsed;
-            bkp.Output.PrintLineAndLog($"Beginning backup...");
+            Console.PrintLineAndLog($"Beginning backup...");
             Progress.IsIndeterminate = true;
             Stopwatch.Reset();
             Stopwatch.Start();
@@ -114,9 +115,9 @@ namespace bkp
             } 
             catch(Exception e)
             {
-                bkp.Output.Log(e);
+                Console.Log(e);
             }
-            bkp.Output.PrintLineAndLog($"Time to calculate size {size} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Console.PrintLineAndLog($"Time to calculate size {size} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
             {
@@ -124,23 +125,12 @@ namespace bkp
             }
             catch (Exception e)
             {
-                bkp.Output.Log(e);
+                Console.Log(e);
             }
-            bkp.Output.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
+            Console.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
             Stopwatch.Stop();
             timer.Dispose();            
-        }
-        // https://stackoverflow.com/a/616676
-        public static void ForceUpdate()
-        {
-            DispatcherFrame frame = new();
-            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate (object parameter)
-            {
-                frame.Continue = false;
-                return null;
-            }), null);
-            Dispatcher.PushFrame(frame);
-        }
+        }        
         private void BufferSizeBox_KeyUp(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.Enter)
@@ -161,13 +151,11 @@ namespace bkp
                 binding?.UpdateSource();
             }            
         }
-
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
             AutoScroll = true;
             AutoscrollCheckbox.IsChecked = AutoScroll;
         }
-
         private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
             AutoScroll = false;

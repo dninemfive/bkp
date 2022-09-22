@@ -10,7 +10,7 @@ using System.Windows.Media;
 
 namespace bkp
 {
-    public static class Output
+    public static class Console
     {        
         public static SolidColorBrush Color(this ResultCategory lt) => lt switch
         {

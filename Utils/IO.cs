@@ -36,7 +36,7 @@ namespace bkp
             }
             catch (Exception e)
             {
-                Output.Log(e);
+                Console.Log(e);
                 return new(oldFilePath, ResultCategory.Failure, size);
             }
         }
@@ -44,7 +44,7 @@ namespace bkp
         {
             if(!File.Exists(path))
             {
-                Output.Log($"Tried to delete {path}, but it did not exist!");
+                Console.Log($"Tried to delete {path}, but it did not exist!");
                 return new(path, ResultCategory.NoChange, -1);
             }
             try
@@ -57,7 +57,7 @@ namespace bkp
             }
             catch (Exception e)
             {
-                Output.Log(e);
+                Console.Log(e);
                 return new(path, ResultCategory.Failure, -1);
             }
         }

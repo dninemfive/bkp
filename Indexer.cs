@@ -15,7 +15,7 @@ namespace bkp
         public static Task Backup()
         {
             string dest = MainWindow.Config.DestinationFolder;
-            string bkpFile = Path.Join(dest, $"{Output.DateToday}.bkp");
+            string bkpFile = Path.Join(dest, $"{Console.DateToday}.bkp");
             Bkp = File.AppendText(bkpFile);
             string indexFolder = Path.Join(dest, "_index");
             try
@@ -30,7 +30,7 @@ namespace bkp
             } 
             finally
             {
-                Output.Log("Flushing...");
+                Console.Log("Flushing...");
                 Bkp.Flush();
                 Bkp.Close();
             }
