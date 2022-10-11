@@ -47,7 +47,7 @@
             <Button Name="SetTargetFolderButton" Padding="8" Click="Button_Settings" Grid.Row="0">Settings</Button>
             <Button Name="SetBackupFoldersButton" Padding="8" Click="Button_CleanUp" Grid.Row="1">Clean Up</Button>
             <Button Name="StartButton" Padding="8" Click="Button_StartBackup" Grid.Row="2">Start backup</Button>
-            <Button Name="StartIndexButton" Padding="8" Click="Button_StartIndex" Grid.Row="3">Start Index</Button>
+            <!--Button Name="StartIndexButton" Padding="8" Click="Button_StartIndex" Grid.Row="3">Start Index</-->
         </Grid>                
     </Grid>
 </Window>
