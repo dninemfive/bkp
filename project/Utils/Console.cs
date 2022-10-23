@@ -27,9 +27,9 @@ namespace bkp
         public static void PrintLine(Run r, bool replaceLast)
         {
             r.Text += "\n";
-            if(replaceLast && MainWindow.Instance.Output.Inlines.Any())
+            if(replaceLast && MainWindow.Instance.Output.Blocks.Any())
             {
-                MainWindow.Instance.Output.Inlines.Remove(MainWindow.Instance.Output.Inlines.LastInline);
+                MainWindow.Instance.Output.Blocks.Remove(MainWindow.Instance.Output.Blocks.LastBlock);
             } 
             MainWindow.Instance.Print(r);
         }
@@ -39,6 +39,12 @@ namespace bkp
             Log(obj);
         }
         public static Run RunFor(object obj, ResultCategory type = ResultCategory.Other) => new Run(obj.ToString()) { Foreground = type.Color() };
+        public static Block ToBlock(this Run run)
+        {
+            Paragraph result = new();
+            result.Inlines.Add(run);
+            return result;
+        }
         #region readability
         // cached to avoid issues when running near midnight
         private static DateTime? _today = null;

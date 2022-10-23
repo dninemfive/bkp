@@ -33,9 +33,9 @@
                              KeyUp="BufferSizeBox_KeyUp"/>
                 </StackPanel>
             </Grid>
-            <ScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto">
-                <TextBlock Name="Output" Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}" FontFamily="Courier New" Padding="6 0"></TextBlock>
-            </ScrollViewer>
+            <FlowDocumentScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto">
+                <FlowDocument Name="Output" Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}" FontFamily="Courier New"></FlowDocument>
+            </FlowDocumentScrollViewer>
         </DockPanel>
         <Grid Name="ButtonHolder" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid.RowDefinitions>

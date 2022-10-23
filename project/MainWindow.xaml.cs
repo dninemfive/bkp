@@ -52,8 +52,8 @@ namespace bkp
         public void Print(Run r)
         {
             // delete runs starting from the beginning if buffer is full
-            for (int i = 0; i <= Output.Inlines.Count - BufferSize; i++) Output.Inlines.Remove(Output.Inlines.FirstInline);
-            Output.Inlines.Add(r);
+            for (int i = 0; i <= Output.Blocks.Count - BufferSize; i++) Output.Blocks.Remove(Output.Blocks.FirstBlock);
+            Output.Blocks.Add(r.ToBlock());
         }
 #region UpdateProgress
         public void UpdateProgress(object obj, ResultCategory category, long size, long? overrideMax = null)
@@ -93,8 +93,8 @@ namespace bkp
             else
             {
                 Console.PrintLine(Console.RunFor(obj, category), false);
-            }            
-            if(AutoScroll) Scroll.ScrollToBottom();
+            }
+            //if (AutoScroll) Scroll.
         }
 #endregion UpdateProgress
         private void Button_Settings(object sender, RoutedEventArgs e)
