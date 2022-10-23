@@ -31,7 +31,7 @@ namespace bkp
         public long RunningTotal { get; private set; }
         public int NumFilesWhichExisted { get; private set; } = 0;
         public bool AutoScroll = false;
-        public int BufferSize = 71;
+        public int BufferSize = 1024;
         public MainWindow()
         {
             if (Instance is not null) return;

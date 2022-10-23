@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:bkp"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Grid Background="{StaticResource BackgroundColor}">
         <DockPanel Panel.ZIndex="0">
             <ProgressBar Name ="Progress" DockPanel.Dock="Top" Height="20"/>
             <DockPanel Name="ProportionBarHolder" DockPanel.Dock="Top" Height="20" Background="#E6E6E6"></DockPanel>
@@ -29,24 +29,24 @@
                               Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" Style="{StaticResource LeftSideText}">:Auto-Scrolling</CheckBox>
                     <!-- buffer size textbox -->
                     <TextBlock Foreground="{StaticResource ForegroundTextColor}" Margin="{StaticResource TextPadding}">Buffer size:</TextBlock>
-                    <TextBox Name="BufferSizeBox" Padding="6 0" Margin="2"  MinWidth="40" Text="{Binding BufferSize, FallbackValue=71}"
+                    <TextBox Name="BufferSizeBox" Padding="6 0" Margin="2"  MinWidth="40" Text="{Binding BufferSize, FallbackValue=1024}"
                              KeyUp="BufferSizeBox_KeyUp"/>
                 </StackPanel>
             </Grid>
-            <FlowDocumentScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto">
+            <!-- Annoyingly, setting padding on the scrollviewer appears to work the same way as PagePadding on the document itself -->
+            <FlowDocumentScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto" Padding="6 4">
                 <!-- despite both being "device-independent pixels" (and the example code for FlowDocument.LineHeight showing them to be equivalent),
-                     the px units for FontSize and LineHeight are different 🤔 
-                     the pt units seem to be internally inconsistent
-                     the pt units seem to be internally inconsistent -->
-                <FlowDocument Name="Output" 
-                              Background="{StaticResource BackgroundColor}" 
+                     the px units for FontSize and LineHeight are different 🤔; the pt units seem to be internally inconsistent.
+                     upon further experimentation, PagePadding appears to apply to each element, instead of only on the edges of the document
+                -->
+                <FlowDocument Name="Output"                               
                               Foreground="{StaticResource BackgroundTextColor}" 
                               FontFamily="Courier New" 
                               FontSize="12" 
                               Cursor="Arrow" 
-                              LineHeight="8"
+                              LineHeight="Auto"
                               LineStackingStrategy="BlockLineHeight"
-                              PagePadding="4">
+                              PagePadding="0">
                 </FlowDocument>
             </FlowDocumentScrollViewer>
         </DockPanel>

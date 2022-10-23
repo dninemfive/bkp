@@ -40,14 +40,13 @@ namespace bkp
         public static Run RunFor(object obj, ResultCategory type = ResultCategory.Other) => new Run(obj.ToString()) 
         { 
             Foreground = type.Color(),
-            FontSize = 12,
-            Background = new SolidColorBrush(Colors.Blue)
+            FontSize = 12
         };
         public static Block ToBlock(this Run run)
         {
             Paragraph result = new()
             {
-                Background = new SolidColorBrush(Colors.Green)
+                Margin = new(0)
             };
             result.Inlines.Add(run);
             return result;
