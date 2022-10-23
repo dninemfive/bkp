@@ -34,10 +34,10 @@ namespace bkp
         public static void InvokeInMainThread(this Action action, DispatcherPriority priority = DispatcherPriority.Background) 
             => Application.Current.Dispatcher.Invoke(action, priority);
         // https://stackoverflow.com/a/616676
-        public static void ForceUpdate()
+        public static void ForceUpdate(DispatcherPriority priority = DispatcherPriority.Background)
         {
             DispatcherFrame frame = new();
-            Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new DispatcherOperationCallback(delegate (object parameter)
+            Dispatcher.CurrentDispatcher.BeginInvoke(priority, new DispatcherOperationCallback(delegate (object _)
             {
                 frame.Continue = false;
                 return null;
