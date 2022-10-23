@@ -187,5 +187,9 @@ namespace bkp
             AutoScroll = false;
             AutoscrollCheckbox.IsChecked = AutoScroll;
         }
+        protected override void OnClosed(EventArgs e)
+        {
+            if (BkpGenerator.TempFilePath is not null && File.Exists(BkpGenerator.TempFilePath)) File.Delete(BkpGenerator.TempFilePath);
+        }
     }
 }

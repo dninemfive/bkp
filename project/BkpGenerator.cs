@@ -11,11 +11,13 @@ namespace bkp
 {
     public static class BkpGenerator
     {
+        public static string TempFilePath { get; private set; } = null;
         private static StreamWriter Bkp { get; set; }
         public static Task Backup()
         {
             string dest = MainWindow.Config.DestinationFolder;
             string bkpFile = Path.Join(dest, $"{Console.DateToday}.bkp.temp");
+            TempFilePath = bkpFile;
             Bkp = File.AppendText(bkpFile);
             string indexFolder = Path.Join(dest, "_index");
             try
