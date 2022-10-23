@@ -94,7 +94,7 @@ namespace bkp
             {
                 Console.PrintLine(Console.RunFor(obj, category), false);
             }
-            //if (AutoScroll) Scroll.
+            if (AutoScroll) Scroll.ScrollToBottom();
         }
 #endregion UpdateProgress
         private void Button_Settings(object sender, RoutedEventArgs e)

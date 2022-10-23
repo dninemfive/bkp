@@ -33,13 +33,10 @@
                              KeyUp="BufferSizeBox_KeyUp"/>
                 </StackPanel>
             </Grid>
-            <!-- Annoyingly, setting padding on the scrollviewer appears to work the same way as PagePadding on the document itself -->
-            <FlowDocumentScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto" Padding="6 4">
-                <!-- despite both being "device-independent pixels" (and the example code for FlowDocument.LineHeight showing them to be equivalent),
-                     the px units for FontSize and LineHeight are different 🤔; the pt units seem to be internally inconsistent.
-                     upon further experimentation, PagePadding appears to apply to each element, instead of only on the edges of the document
-                -->
-                <FlowDocument Name="Output"                               
+            <!-- https://stackoverflow.com/a/15185753 -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Name="Scroll">
+                <FlowDocumentScrollViewer VerticalScrollBarVisibility="Hidden" Padding="{StaticResource TextPadding}" IsHitTestVisible="False" HorizontalScrollBarVisibility="Hidden">
+                    <FlowDocument Name="Output"                               
                               Foreground="{StaticResource BackgroundTextColor}" 
                               FontFamily="Courier New" 
                               FontSize="12" 
@@ -47,8 +44,9 @@
                               LineHeight="Auto"
                               LineStackingStrategy="BlockLineHeight"
                               PagePadding="0">
-                </FlowDocument>
-            </FlowDocumentScrollViewer>
+                    </FlowDocument>
+                </FlowDocumentScrollViewer>
+            </ScrollViewer>            
         </DockPanel>
         <Grid Name="ButtonHolder" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid.RowDefinitions>
