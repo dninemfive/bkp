@@ -34,7 +34,20 @@
                 </StackPanel>
             </Grid>
             <FlowDocumentScrollViewer Name="Scroll" VerticalScrollBarVisibility="Auto">
-                <FlowDocument Name="Output" Background="{StaticResource BackgroundColor}" Foreground="{StaticResource BackgroundTextColor}" FontFamily="Courier New"></FlowDocument>
+                <!-- despite both being "device-independent pixels" (and the example code for FlowDocument.LineHeight showing them to be equivalent),
+                     the px units for FontSize and LineHeight are different 🤔 
+                     the pt units seem to be internally inconsistent
+                     the pt units seem to be internally inconsistent -->
+                <FlowDocument Name="Output" 
+                              Background="{StaticResource BackgroundColor}" 
+                              Foreground="{StaticResource BackgroundTextColor}" 
+                              FontFamily="Courier New" 
+                              FontSize="12" 
+                              Cursor="Arrow" 
+                              LineHeight="8"
+                              LineStackingStrategy="BlockLineHeight"
+                              PagePadding="4">
+                </FlowDocument>
             </FlowDocumentScrollViewer>
         </DockPanel>
         <Grid Name="ButtonHolder" Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Center">

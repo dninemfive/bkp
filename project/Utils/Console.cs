@@ -23,10 +23,9 @@ namespace bkp
         };
         public static void Log(object obj) => File.AppendAllText(Constants.LOG_PATH, $"{obj}\n");
         public static void Print(object obj) => Utils.InvokeInMainThread(() => MainWindow.Instance.Print(RunFor(obj)));
-        public static void PrintLine(object obj) => Print($"{obj}\n");
+        public static void PrintLine(object obj) => Print(obj);
         public static void PrintLine(Run r, bool replaceLast)
         {
-            r.Text += "\n";
             if(replaceLast && MainWindow.Instance.Output.Blocks.Any())
             {
                 MainWindow.Instance.Output.Blocks.Remove(MainWindow.Instance.Output.Blocks.LastBlock);
@@ -38,10 +37,18 @@ namespace bkp
             PrintLine(obj);
             Log(obj);
         }
-        public static Run RunFor(object obj, ResultCategory type = ResultCategory.Other) => new Run(obj.ToString()) { Foreground = type.Color() };
+        public static Run RunFor(object obj, ResultCategory type = ResultCategory.Other) => new Run(obj.ToString()) 
+        { 
+            Foreground = type.Color(),
+            FontSize = 12,
+            Background = new SolidColorBrush(Colors.Blue)
+        };
         public static Block ToBlock(this Run run)
         {
-            Paragraph result = new();
+            Paragraph result = new()
+            {
+                Background = new SolidColorBrush(Colors.Green)
+            };
             result.Inlines.Add(run);
             return result;
         }
