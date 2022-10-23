@@ -49,11 +49,11 @@ namespace bkp
                 Utils.ForceUpdate();
             });
         }
-        public void Print(Run r)
+        public void Print(Block b)
         {
             // delete runs starting from the beginning if buffer is full
             for (int i = 0; i <= Output.Blocks.Count - BufferSize; i++) Output.Blocks.Remove(Output.Blocks.FirstBlock);
-            Output.Blocks.Add(r.ToBlock());
+            Output.Blocks.Add(b);
         }
 #region UpdateProgress
         public void UpdateProgress(object obj, ResultCategory category, long size, long? overrideMax = null)
@@ -88,11 +88,11 @@ namespace bkp
             }
             if(NumFilesWhichExisted > 0)
             {
-                Console.PrintLine(Console.RunFor($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange), NumFilesWhichExisted > 1);
+                Console.Print($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange, NumFilesWhichExisted > 1);
             } 
             else
             {
-                Console.PrintLine(Console.RunFor(obj, category), false);
+                Console.Print(obj, category);
             }
             if (AutoScroll) Scroll.ScrollToBottom();
         }
@@ -113,7 +113,7 @@ namespace bkp
         {
             using Timer timer = HideButtonsAndStartTimer();
             string bkpFile = System.IO.Path.Join(Config.DestinationFolder, $"{Console.DateToday}.bkp");
-            Console.PrintLineAndLog($"Cleaning up {bkpFile}...");                     
+            Console.PrintAndLog($"Cleaning up {bkpFile}...");                     
             Progress.IsIndeterminate = true;
             try
             {
@@ -123,14 +123,14 @@ namespace bkp
             {
                 Console.Log(ex);
             }
-            Console.PrintLineAndLog($"Total time to clean up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Console.PrintAndLog($"Total time to clean up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Stopwatch.Stop();
             timer.Dispose();
         }
         private async void Button_StartBackup(object sender, RoutedEventArgs _)
         {
             using Timer timer = HideButtonsAndStartTimer();
-            Console.PrintLineAndLog($"Beginning backup...");
+            Console.PrintAndLog($"Beginning backup...");
             Progress.IsIndeterminate = true;            
             RunningTotal = 0;
             long size = -1;
@@ -143,7 +143,7 @@ namespace bkp
             {
                 Console.Log(e);
             }
-            Console.PrintLineAndLog($"Time to calculate size {size.Readable()} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
+            Console.PrintAndLog($"Time to calculate size {size.Readable()} was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Progress.IsIndeterminate = false;
             try
             {
@@ -153,7 +153,7 @@ namespace bkp
             {
                 Console.Log(e);
             }
-            Console.PrintLineAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
+            Console.PrintAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
             Stopwatch.Stop();
             timer.Dispose();            
         }        

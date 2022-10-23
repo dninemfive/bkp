@@ -62,7 +62,7 @@ namespace bkp
         {
             IEnumerable<string> lines = File.ReadAllLines(filePath);
             HashSet<string> records = lines.ToHashSet();
-            Console.PrintLineAndLog($"{lines.Count()} unique lines and {records.Count} unique lines to clean up.");
+            Console.PrintAndLog($"{lines.Count()} unique lines and {records.Count} unique lines to clean up.");
             Queue<string> toWrite = new(records.OrderBy(x => x));
             Utils.InvokeInMainThread(() => MainWindow.Instance.Progress.Maximum = records.Count);
             string tempFilePath = $"{filePath}.temp";

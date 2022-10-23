@@ -22,31 +22,27 @@ namespace bkp
             _                   => new(Colors.White)
         };
         public static void Log(object obj) => File.AppendAllText(Constants.LOG_PATH, $"{obj}\n");
-        public static void Print(object obj) => Utils.InvokeInMainThread(() => MainWindow.Instance.Print(RunFor(obj)));
-        public static void PrintLine(object obj) => Print(obj);
-        public static void PrintLine(Run r, bool replaceLast)
+        public static void Print(object obj, ResultCategory category = ResultCategory.Other, bool replaceLast = false)
         {
+            Block block = BlockFor(obj, category);
             if(replaceLast && MainWindow.Instance.Output.Blocks.Any())
             {
                 MainWindow.Instance.Output.Blocks.Remove(MainWindow.Instance.Output.Blocks.LastBlock);
             } 
-            MainWindow.Instance.Print(r);
+            MainWindow.Instance.Print(block);
         }
-        public static void PrintLineAndLog(object obj)
+        public static void PrintAndLog(object obj)
         {
-            PrintLine(obj);
+            Print(obj);
             Log(obj);
         }
-        public static Run RunFor(object obj, ResultCategory type = ResultCategory.Other) => new Run(obj.ToString()) 
-        { 
-            Foreground = type.Color(),
-            FontSize = 12
-        };
-        public static Block ToBlock(this Run run)
+        public static Block BlockFor(object obj, ResultCategory type = ResultCategory.Other)
         {
+            Run run = new($"{obj}");
             Paragraph result = new()
             {
-                Margin = new(0)
+                Margin = new(0),
+                Foreground = type.Color()
             };
             result.Inlines.Add(run);
             return result;
