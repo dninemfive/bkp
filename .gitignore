@@ -1,9 +1,4 @@
 */.vs/
 */bin/
 */obj/
-*/Platforms/
-*/Resources/Fonts/
-*/Resources/Images/
-*/Resources/Raw/
-*/Resources/Splash/
 *.csproj.user

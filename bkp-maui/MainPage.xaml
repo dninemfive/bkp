@@ -3,6 +3,20 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="bkp_maui.MainPage">
     <VerticalStackLayout>
-        
+        <ProgressBar x:Name="BackupProgressBar" Progress="0.5"/>
+        <Grid x:Name="ProgressInfo">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label x:Name="ProgressLabel" Text="progress" Grid.Column="0" HorizontalTextAlignment="Start"/>
+            <Label x:Name="TimeElapsedLabel" Text="time elapsed" Grid.Column="1" HorizontalTextAlignment="End"/>
+        </Grid>
+        <Button x:Name="StartButton" Text="Start" Clicked="StartButton_Clicked"/>
+        <ScrollView>
+            <VerticalStackLayout>
+                
+            </VerticalStackLayout>
+        </ScrollView>
     </VerticalStackLayout>
 </ContentPage>
