@@ -1,5 +1,4 @@
-﻿namespace bkp_maui;
-
+﻿namespace d9.bkp.maui;
 public partial class App : Application
 {
     public App()

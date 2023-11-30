@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using bkp.Utils;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -13,9 +11,6 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace bkp
@@ -34,7 +29,11 @@ namespace bkp
         public int BufferSize = 1024;
         public MainWindow()
         {
-            if (Instance is not null) return;
+            if (Instance is not null)
+            {
+                return;
+            }
+
             Instance = this;
             File.WriteAllText(Constants.LOG_PATH, "");
             InitializeComponent();
@@ -52,33 +51,36 @@ namespace bkp
         public void Print(Block b)
         {
             // delete runs starting from the beginning if buffer is full
-            for (int i = 0; i <= Output.Blocks.Count - BufferSize; i++) Output.Blocks.Remove(Output.Blocks.FirstBlock);
+            for (int i = 0; i <= Output.Blocks.Count - BufferSize; i++)
+            {
+                _ = Output.Blocks.Remove(Output.Blocks.FirstBlock);
+            }
+
             Output.Blocks.Add(b);
         }
-#region UpdateProgress
+        #region UpdateProgress
         public void UpdateProgress(object obj, ResultCategory category, long size, long? overrideMax = null)
         {
             Utils.InvokeInMainThread(() => UpdateProgressInternal(obj, category, size, overrideMax), DispatcherPriority.Send);
             Utils.ForceUpdate();
         }
-        public void UpdateProgress(IoResult result) => UpdateProgress(result.oldFilePath, result.category, result.size);        
+        public void UpdateProgress(IoResult result)
+        {
+            UpdateProgress(result.oldFilePath, result.category, result.size);
+        }
+
         private void UpdateProgressInternal(object obj, ResultCategory category, long size, long? overrideMax = null)
         {
-            if(size >= 0)
+            if (size >= 0)
             {
                 Progress.IsIndeterminate = false;
                 RunningTotal += size;
                 Progress.Value = RunningTotal;
-                if(overrideMax is not null)
-                {
-                    ProgressText.Text = $"{RunningTotal}/{overrideMax} ({(RunningTotal / (double)overrideMax):P1})";
-                }
-                else
-                {
-                    ProgressText.Text = $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({(RunningTotal / (double)Config.Size):P1})";
-                }
+                ProgressText.Text = overrideMax is not null
+                    ? $"{RunningTotal}/{overrideMax} ({RunningTotal / (double)overrideMax:P1})"
+                    : $"{RunningTotal.Readable()}/{Config.Size.Readable()} ({RunningTotal / (double)Config.Size:P1})";
             }
-            if(category == ResultCategory.NoChange)
+            if (category == ResultCategory.NoChange)
             {
                 NumFilesWhichExisted++;
             }
@@ -86,17 +88,20 @@ namespace bkp
             {
                 NumFilesWhichExisted = 0;
             }
-            if(NumFilesWhichExisted > 0)
+            if (NumFilesWhichExisted > 0)
             {
                 Console.Print($"[{NumFilesWhichExisted} files which already existed]", ResultCategory.NoChange, NumFilesWhichExisted > 1);
-            } 
+            }
             else
             {
                 Console.Print(obj, category);
             }
-            if (AutoScroll) Scroll.ScrollToBottom();
+            if (AutoScroll)
+            {
+                Scroll.ScrollToBottom();
+            }
         }
-#endregion UpdateProgress
+        #endregion UpdateProgress
         private void Button_Settings(object sender, RoutedEventArgs e)
         {
 
@@ -113,13 +118,13 @@ namespace bkp
         {
             using Timer timer = HideButtonsAndStartTimer();
             string bkpFile = System.IO.Path.Join(Config.DestinationFolder, $"{Console.DateToday}.bkp");
-            Console.PrintAndLog($"Cleaning up {bkpFile}...");                     
+            Console.PrintAndLog($"Cleaning up {bkpFile}...");
             Progress.IsIndeterminate = true;
             try
             {
                 await BkpGenerator.CleanUp(bkpFile);
-            } 
-            catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 Console.Log(ex);
             }
@@ -131,15 +136,15 @@ namespace bkp
         {
             using Timer timer = HideButtonsAndStartTimer();
             Console.PrintAndLog($"Beginning backup...");
-            Progress.IsIndeterminate = true;            
+            Progress.IsIndeterminate = true;
             RunningTotal = 0;
             long size = -1;
             try
             {
                 size = await Task.Run(() => Config.CalculateSizeAsync());
                 Utils.InvokeInMainThread(() => Progress.Maximum = size);
-            } 
-            catch(Exception e)
+            }
+            catch (Exception e)
             {
                 Console.Log(e);
             }
@@ -153,13 +158,13 @@ namespace bkp
             {
                 Console.Log(e);
             }
-            Console.PrintAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");             
+            Console.PrintAndLog($"Total time to back up was {Stopwatch.Elapsed:hh\\:mm\\:ss}.");
             Stopwatch.Stop();
-            timer.Dispose();            
-        }        
+            timer.Dispose();
+        }
         private void BufferSizeBox_KeyUp(object sender, KeyEventArgs e)
         {
-            if(e.Key == Key.Enter)
+            if (e.Key == Key.Enter)
             {
                 TextBox box = sender as TextBox;
                 ValidationResult validation = BufferSizeRule.Validate(box.Text);
@@ -175,7 +180,7 @@ namespace bkp
                 }
                 BindingExpression binding = BindingOperations.GetBindingExpression(box, TextBox.TextProperty);
                 binding?.UpdateSource();
-            }            
+            }
         }
         private void CheckBox_Checked(object sender, RoutedEventArgs e)
         {
@@ -189,7 +194,10 @@ namespace bkp
         }
         protected override void OnClosed(EventArgs e)
         {
-            if (BkpGenerator.TempFilePath is not null && File.Exists(BkpGenerator.TempFilePath)) File.Delete(BkpGenerator.TempFilePath);
+            if (BkpGenerator.TempFilePath is not null && File.Exists(BkpGenerator.TempFilePath))
+            {
+                File.Delete(BkpGenerator.TempFilePath);
+            }
         }
     }
 }

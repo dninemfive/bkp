@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace bkp
@@ -22,17 +20,18 @@ namespace bkp
         {
             get
             {
-                if (_size is null)
-                {
-                    _size = CalculateSizeAsync().Result;
-                }
+                _size ??= CalculateSizeAsync().Result;
                 return _size.Value;
             }
         }
         public async Task<long> CalculateSizeAsync()
         {
             List<Task<long>> tasks = new();
-            foreach (string folder in SourceFolders) tasks.Add(folder.TotalSizeAsync());
+            foreach (string folder in SourceFolders)
+            {
+                tasks.Add(folder.TotalSizeAsync());
+            }
+
             _size = (await Task.WhenAll(tasks)).Sum();
             return _size.Value;
         }

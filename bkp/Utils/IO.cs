@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace bkp
+namespace bkp.Utils
 {
     public enum ResultCategory { Success, Failure, NoChange, InProgress, Other }
     public struct IoResult
@@ -27,8 +22,11 @@ namespace bkp
         {
             long size = new FileInfo(oldFilePath).Length;
             if (File.Exists(newFilePath))
+            {
                 return new(oldFilePath, ResultCategory.NoChange, size);
-            Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+            }
+
+            _ = Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
             try
             {
                 File.Copy(oldFilePath, newFilePath);
@@ -42,7 +40,7 @@ namespace bkp
         }
         public static IoResult TryDelete(string path)
         {
-            if(!File.Exists(path))
+            if (!File.Exists(path))
             {
                 Console.Log($"Tried to delete {path}, but it did not exist!");
                 return new(path, ResultCategory.NoChange, -1);
@@ -64,8 +62,7 @@ namespace bkp
         public static IoResult TryMove(string oldFilePath, string newFilePath)
         {
             IoResult result = TryCopy(oldFilePath, newFilePath);
-            if (result.category is not ResultCategory.Success) return result;
-            return TryDelete(oldFilePath);
+            return result.category is not ResultCategory.Success ? result : TryDelete(oldFilePath);
         }
     }
 }

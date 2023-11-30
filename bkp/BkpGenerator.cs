@@ -1,11 +1,9 @@
-﻿using System;
+﻿using bkp.Utils;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
-using System.Windows.Media;
+using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace bkp
 {
@@ -22,14 +20,14 @@ namespace bkp
             string indexFolder = Path.Join(dest, "_index");
             try
             {
-                foreach(string folder in MainWindow.Config.SourceFolders)
+                foreach (string folder in MainWindow.Config.SourceFolders)
                 {
-                    foreach(string file in folder.AllFilesRecursive())
+                    foreach (string file in folder.AllFilesRecursive())
                     {
                         IndexAndCopy(file, indexFolder);
                     }
                 }
-            } 
+            }
             finally
             {
                 Console.Log("Flushing...");

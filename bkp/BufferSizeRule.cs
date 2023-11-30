@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Controls;
 
 namespace bkp
@@ -15,20 +11,26 @@ namespace bkp
     public class BufferSizeRule : ValidationRule
     {
         private static readonly BufferSizeRule Inst = new();
-        public static ValidationResult Validate(string s) => Inst.Validate(s, CultureInfo.InvariantCulture);
+        public static ValidationResult Validate(string s)
+        {
+            return Inst.Validate(s, CultureInfo.InvariantCulture);
+        }
+
         public override ValidationResult Validate(object value, CultureInfo cultureInfo)
         {
             int result = default;
             try
             {
-                if (value is string s && s.Length > 0) result = int.Parse(s);
+                if (value is string s && s.Length > 0)
+                {
+                    result = int.Parse(s);
+                }
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return new ValidationResult(false, e.Message);
             }
-            if (result < 1) return new ValidationResult(false, "Buffer size must be greater than zero.");
-            return ValidationResult.ValidResult;
+            return result < 1 ? new ValidationResult(false, "Buffer size must be greater than zero.") : ValidationResult.ValidResult;
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using d9.bkp.maui;
-
-namespace bkp_maui;
-
+﻿namespace d9.bkp.maui;
 public partial class MainPage : ContentPage
 {
     public string Destination { get; private set; } // todo: populate from file picker or Entry

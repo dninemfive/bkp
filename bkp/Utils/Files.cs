@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
-namespace bkp
+namespace bkp.Utils
 {
     public static class Files
     {
@@ -45,7 +44,11 @@ namespace bkp
         }
         public static void DeleteEmptySubfolders(this string path)
         {
-            foreach (string subfolder in Directory.EnumerateDirectories(path)) subfolder.DeleteEmptySubfolders();
+            foreach (string subfolder in Directory.EnumerateDirectories(path))
+            {
+                subfolder.DeleteEmptySubfolders();
+            }
+
             int numFiles = Directory.GetFiles(path).Length, numFolders = Directory.GetDirectories(path).Length;
             if (numFiles + numFolders == 0)
             {
@@ -61,7 +64,11 @@ namespace bkp
         }
         public static IEnumerable<string> AllFilesRecursive(this string path)
         {
-            if (!Directory.Exists(path)) yield break;
+            if (!Directory.Exists(path))
+            {
+                yield break;
+            }
+
             foreach (string subfolder in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).EnumerateSafe())
             {
                 foreach (string file in Directory.EnumerateFiles(subfolder).EnumerateSafe())

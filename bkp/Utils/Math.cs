@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace bkp
+﻿namespace bkp.Utils
 {
     public static class Math
     {
         public static int Digits(this long l)
         {
-            if (l < 0) l = -l;
+            if (l < 0)
+            {
+                l = -l;
+            }
+
             int ct = 0;
             while (l > 9)
             {

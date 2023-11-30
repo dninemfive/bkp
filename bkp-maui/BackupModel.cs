@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.IO;
-using System.Text.Json;
-
+﻿using System.Text.Json;
 namespace d9.bkp.maui;
 public class BackupModel : IDisposable
 {
@@ -26,14 +19,14 @@ public class BackupModel : IDisposable
         string indexFolder = Path.Join(Destination, "_index");
         try
         {
-            foreach(string folder in SourceFolders)
+            foreach (string folder in SourceFolders)
             {
-                foreach(string file in folder.AllFilesRecursive())
+                foreach (string file in folder.AllFilesRecursive())
                 {
                     await IndexAndCopy(file, indexFolder, progress);
                 }
             }
-        } 
+        }
         finally
         {
             Console.Log("Flushing...");

@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 
-namespace bkp
+namespace bkp.Utils
 {
     public static class Utils
-    {               
+    {
         public static IEnumerable<T> EnumerateSafe<T>(this IEnumerable<T> enumerable)
         {
             // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
-            using var enumerator = enumerable.GetEnumerator();
+            using IEnumerator<T> enumerator = enumerable.GetEnumerator();
             bool next = true;
             while (next)
             {
@@ -31,13 +28,16 @@ namespace bkp
                 }
             }
         }
-        public static void InvokeInMainThread(this Action action, DispatcherPriority priority = DispatcherPriority.Background) 
-            => Application.Current.Dispatcher.Invoke(action, priority);
+        public static void InvokeInMainThread(this Action action, DispatcherPriority priority = DispatcherPriority.Background)
+        {
+            Application.Current.Dispatcher.Invoke(action, priority);
+        }
+
         // https://stackoverflow.com/a/616676
         public static void ForceUpdate(DispatcherPriority priority = DispatcherPriority.Background)
         {
             DispatcherFrame frame = new();
-            Dispatcher.CurrentDispatcher.BeginInvoke(priority, new DispatcherOperationCallback(delegate (object _)
+            _ = Dispatcher.CurrentDispatcher.BeginInvoke(priority, new DispatcherOperationCallback(delegate (object _)
             {
                 frame.Continue = false;
                 return null;
