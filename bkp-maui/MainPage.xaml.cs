@@ -1,23 +1,34 @@
 ﻿namespace d9.bkp.maui;
 public partial class MainPage : ContentPage
 {
-    public string Destination { get; private set; } // todo: populate from file picker or Entry
-    public IEnumerable<string> SourceFolders { get; private set; } // ditto
-
+    private string? Destination { get; set; } // todo: populate from file picker or Entry
+    private List<string> SourceFolders { get; set; } = new();
     public MainPage()
     {
         InitializeComponent();
     }
     private async void StartButton_Clicked(object sender, EventArgs e)
     {
-        using BackupModel model = new(Destination, SourceFolders);
-        Progress<IoResult> progress = new((result) =>
+        Button? button = sender as Button;
+        if (button is not null)
+            button.IsEnabled = false;
+        if(SourceFolders.Any() && Destination is not null)
         {
-            // set progress bar progress
-            // update labels
-            // log result
-        });
-        await model.Backup(progress);
+            using BackupModel model = new(Destination, SourceFolders);
+            long totalSize = await model.TotalSizeAsync();
+            long runningTotal = 0;
+            Progress<IoResult> progress = new((result) =>
+            {
+                runningTotal += result.Size;
+                double progressPct = runningTotal / (double)totalSize;
+                BackupProgressBar.Progress = progressPct;
+                ProgressLabel.Text = $"{runningTotal.Readable()}/{totalSize.Readable()} ({progressPct:P1})";
+                // log result
+            });
+            await model.BackupAsync(progress);
+        }
+        if (button is not null)
+            button.IsEnabled = true;
     }
 }
 

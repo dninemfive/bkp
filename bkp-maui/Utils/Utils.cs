@@ -8,7 +8,7 @@ public static class Utils
         get
         {
             _today ??= DateTime.Today;
-            return _today.Value.ToString("yyyy.M.d");
+            return _today.Value.ToString(Constants.DATE_FORMAT);
         }
     }
     public static IEnumerable<T> EnumerateSafe<T>(this IEnumerable<T> enumerable)
@@ -24,7 +24,7 @@ public static class Utils
             }
             catch (Exception e)
             {
-                Console.Log(e);
+                ConsoleUtils.Log(e);
             }
             if (next)
             {

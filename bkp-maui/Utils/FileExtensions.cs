@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 
 namespace d9.bkp.maui;
-public static class Files
+public static class FileExtensions
 {
     public static async Task<string> HashFileAsync(this string path)
     {
@@ -19,9 +19,7 @@ public static class Files
     {
         List<Task<long?>> tasks = new();
         foreach (string filePath in path.AllFilesRecursive())
-        {
             tasks.Add(filePath.FileSizeAsync());
-        }
         long?[] results = await Task.WhenAll(tasks);
         return results.Where(x => x.HasValue).Select(x => x.Value).Sum();
     }
@@ -34,18 +32,14 @@ public static class Files
         }
         catch (Exception e)
         {
-            Console.Log(e);
-            return result;
+            ConsoleUtils.Log(e);
         }
         return result;
     }
     public static void DeleteEmptySubfolders(this string path)
     {
         foreach (string subfolder in Directory.EnumerateDirectories(path))
-        {
             subfolder.DeleteEmptySubfolders();
-        }
-
         int numFiles = Directory.GetFiles(path).Length, numFolders = Directory.GetDirectories(path).Length;
         if (numFiles + numFolders == 0)
         {
@@ -55,27 +49,38 @@ public static class Files
             }
             catch (Exception e)
             {
-                Console.Log(e);
+                ConsoleUtils.Log(e);
             }
         }
     }
     public static IEnumerable<string> AllFilesRecursive(this string path)
     {
         if (!Directory.Exists(path))
-        {
             yield break;
+        foreach (string subfolder in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).EnumerateSafe())
+            foreach (string file in Directory.EnumerateFiles(subfolder).EnumerateSafe())
+                yield return file;
+        foreach (string file in Directory.EnumerateFiles(path).EnumerateSafe())
+            yield return file;
+    }
+    public static async Task<IoResult> TryCopyToAsync(this string oldFilePath, string newFilePath)
+    {
+        long size = new FileInfo(oldFilePath).Length;
+        if (File.Exists(newFilePath))
+        {
+            return new(oldFilePath, ResultCategory.NoChange, size);
         }
 
-        foreach (string subfolder in Directory.EnumerateDirectories(path, "*", SearchOption.AllDirectories).EnumerateSafe())
+        _ = Directory.CreateDirectory(Path.GetDirectoryName(newFilePath));
+        try
         {
-            foreach (string file in Directory.EnumerateFiles(subfolder).EnumerateSafe())
-            {
-                yield return file;
-            }
+            await Task.Run(() => File.Copy(oldFilePath, newFilePath));
+            return new(oldFilePath, ResultCategory.Success, size);
         }
-        foreach (string file in Directory.EnumerateFiles(path).EnumerateSafe())
+        catch (Exception e)
         {
-            yield return file;
+            ConsoleUtils.Log(e);
+            return new(oldFilePath, ResultCategory.Failure, size);
         }
     }
 }

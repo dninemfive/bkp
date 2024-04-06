@@ -13,6 +13,7 @@
             <Label x:Name="TimeElapsedLabel" Text="time elapsed" Grid.Column="1" HorizontalTextAlignment="End"/>
         </Grid>
         <Button x:Name="StartButton" Text="Start" Clicked="StartButton_Clicked"/>
+        
         <ScrollView>
             <VerticalStackLayout>
                 

@@ -1,5 +1,5 @@
 ﻿namespace d9.bkp.maui;
-public static class Console
+public static class ConsoleUtils
 {
     public static Color Color(this ResultCategory lt)
     {

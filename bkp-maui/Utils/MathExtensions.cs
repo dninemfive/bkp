@@ -1,6 +1,6 @@
 ﻿namespace d9.bkp.maui;
 
-public static class Math
+public static class MathExtensions
 {
     public static int Digits(this long l)
     {
