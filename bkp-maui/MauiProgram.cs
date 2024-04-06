@@ -14,6 +14,8 @@ public static class MauiProgram
             });
 
 #if DEBUG
+        // todo: figure out how to use this
+        // also remember that maui has preset stuff for a toolbar
         builder.Logging.AddDebug();
 #endif
 

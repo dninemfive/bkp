@@ -51,8 +51,7 @@ public static class Console
         return $"{bytes / (double)digits.Divisor():F3} {digits.Suffix()}";
     }
     public static string Suffix(this int digits)
-    {
-        return digits switch
+        => digits switch
         {
             < 3 => "bytes",
             < 6 => "KB",
@@ -65,6 +64,5 @@ public static class Console
             < 27 => "YB",
             _ => "?B"
         };
-    }
     #endregion readability
 }

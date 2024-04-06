@@ -11,4 +11,25 @@ public static class Utils
             return _today.Value.ToString("yyyy.M.d");
         }
     }
+    public static IEnumerable<T> EnumerateSafe<T>(this IEnumerable<T> enumerable)
+    {
+        // https://stackoverflow.com/questions/3835633/wrap-an-ienumerable-and-catch-exceptions/34745417
+        using IEnumerator<T> enumerator = enumerable.GetEnumerator();
+        bool next = true;
+        while (next)
+        {
+            try
+            {
+                next = enumerator.MoveNext();
+            }
+            catch (Exception e)
+            {
+                Console.Log(e);
+            }
+            if (next)
+            {
+                yield return enumerator.Current;
+            }
+        }
+    }
 }

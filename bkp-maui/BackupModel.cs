@@ -20,12 +20,8 @@ public class BackupModel : IDisposable
         try
         {
             foreach (string folder in SourceFolders)
-            {
                 foreach (string file in folder.AllFilesRecursive())
-                {
                     await IndexAndCopy(file, indexFolder, progress);
-                }
-            }
         }
         finally
         {
@@ -84,31 +80,13 @@ public class BackupModel : IDisposable
         if (!_disposed && disposing)
         {
             if (disposing)
-            {
                 StreamWriter.Dispose();
-            }
             _disposed = true;
         }
     }
     public void Dispose()
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
-    }
-}
-public class FileRecord
-{
-    public string Path { get; private set; }
-    public string Hash { get; private set; }
-    private FileRecord(string path, string hash)
-    {
-        Path = path;
-        Hash = hash;
-    }
-    public static async Task<FileRecord> For(string path)
-    {
-        string hash = await path.HashFileAsync();
-        return new(path, hash);
     }
 }
