@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 
-namespace bkp.Utils
+namespace bkp
 {
     public static class Files
     {

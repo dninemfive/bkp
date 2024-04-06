@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace bkp.Utils
+namespace bkp
 {
     public enum ResultCategory { Success, Failure, NoChange, InProgress, Other }
     public struct IoResult

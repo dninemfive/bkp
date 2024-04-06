@@ -4,7 +4,7 @@ using System.Linq;
 using System.Windows.Documents;
 using System.Windows.Media;
 
-namespace bkp.Utils
+namespace bkp
 {
     public static class Console
     {

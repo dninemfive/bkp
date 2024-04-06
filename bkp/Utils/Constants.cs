@@ -1,4 +1,4 @@
-﻿namespace bkp.Utils
+﻿namespace bkp
 {
     public static class Constants
     {
