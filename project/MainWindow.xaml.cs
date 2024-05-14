@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -190,6 +191,22 @@ namespace bkp
         protected override void OnClosed(EventArgs e)
         {
             if (BkpGenerator.TempFilePath is not null && File.Exists(BkpGenerator.TempFilePath)) File.Delete(BkpGenerator.TempFilePath);
+        }
+
+        private async void RestoreButton_Click(object sender, RoutedEventArgs e)
+        {
+            Progress<(string path, bool applies)> progress = new((x) => UpdateProgress(x.path, x.applies ? ResultCategory.Success : ResultCategory.NoChange, 1));
+            using Timer timer = HideButtonsAndStartTimer();
+            Progress.IsIndeterminate = true;
+            Console.Print($"asdf");
+            int ct = (await File.ReadAllLinesAsync(@"D:\Automatic\2024.5.14.bkp")).Length;
+            Console.Print($"jkl;");
+            Utils.InvokeInMainThread(() => Progress.Maximum = ct);
+            Console.Print($"ewt;");
+            Progress.IsIndeterminate = false;
+            Console.Print($"asefrie4whot");
+            await Restore.RestoreStuff(progress);
+            Console.Print("done");
         }
     }
 }
